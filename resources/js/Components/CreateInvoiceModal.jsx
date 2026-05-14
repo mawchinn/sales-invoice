@@ -1,19 +1,110 @@
 import React, { useState } from 'react';
 
+const predefinedItems = [
+    { code: 'SELECT', description: 'Select a product...', cost: 0 },
+    { code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 70990.00 },
+    { code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00 },
+    { code: 'AIRPODS-P2', description: 'AirPods Pro (2nd Generation) with MagSafe', cost: 14990.00 },
+    { code: 'IPAD-AIR5', description: 'iPad Air (5th Generation) Wi-Fi 64GB Blue', cost: 35990.00 },
+    { code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 24990.00 },
+];
+
 export default function CreateInvoiceModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
-    // Simple state for mockup items
+    const [customerData, setCustomerData] = useState({
+        invoiceNumber: `PMC-2026-${Math.floor(Math.random() * 900) + 100}`,
+        name: '',
+        address: '',
+        contact: '',
+        tin: '',
+        date: new Date().toISOString().split('T')[0],
+        salesPerson: ''
+    });
+
     const [items, setItems] = useState([
-        { code: '', description: '', cost: '', qty: 1 }
+        { code: 'SELECT', description: '', cost: 0, qty: 1 }
     ]);
 
+    const [errors, setErrors] = useState({});
+
     const handleAddItem = () => {
-        setItems([...items, { code: '', description: '', cost: '', qty: 1 }]);
+        setItems([...items, { code: 'SELECT', description: '', cost: 0, qty: 1 }]);
     };
 
     const handleRemoveItem = (index) => {
-        setItems(items.filter((_, i) => i !== index));
+        if (items.length > 1) {
+            setItems(items.filter((_, i) => i !== index));
+        }
+    };
+
+    const handleUpdateItem = (index, field, value) => {
+        const newItems = [...items];
+        
+        if (field === 'qty') {
+            // Force quantity to be at least 1 and an integer
+            const val = parseInt(value) || 0;
+            newItems[index][field] = Math.max(0, val);
+        } else if (field === 'cost') {
+            // Force cost to be at least 0
+            const val = parseFloat(value) || 0;
+            newItems[index][field] = Math.max(0, val);
+        } else {
+            newItems[index][field] = value;
+        }
+        
+        if (field === 'code') {
+            const selected = predefinedItems.find(i => i.code === value);
+            if (selected && value !== 'SELECT') {
+                newItems[index].description = selected.description;
+                newItems[index].cost = selected.cost;
+            } else {
+                newItems[index].description = '';
+                newItems[index].cost = 0;
+            }
+        }
+        
+        setItems(newItems);
+        // Clear item errors when updated
+        if (errors.items) {
+            const newErrors = { ...errors };
+            delete newErrors.items;
+            setErrors(newErrors);
+        }
+    };
+
+    const validateForm = () => {
+        const newErrors = {};
+        if (!customerData.invoiceNumber.trim()) newErrors.invoiceNumber = 'Invoice number is required';
+        if (!customerData.name.trim()) newErrors.name = 'Customer name is required';
+        if (!customerData.address.trim()) newErrors.address = 'Shipping address is required';
+        if (!customerData.contact.trim()) newErrors.contact = 'Contact number is required';
+        if (!customerData.date) newErrors.date = 'Invoice date is required';
+        if (!customerData.salesPerson.trim()) newErrors.salesPerson = 'Sales person is required';
+        
+        const validItems = items.filter(item => item.code !== 'SELECT' && item.qty > 0);
+        if (validItems.length === 0) {
+            newErrors.items = 'At least one valid product is required';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleCreateInvoice = (e) => {
+        e.preventDefault();
+        if (validateForm()) {
+            console.log('Invoice Created:', { customerData, items });
+            onClose();
+        }
+    };
+
+    const calculateTotal = () => {
+        return items.reduce((acc, item) => {
+            const cost = parseFloat(item.cost) || 0;
+            const qty = parseFloat(item.qty) || 0;
+            return acc + (cost * qty);
+        }, 0);
     };
 
     const inputClasses = "w-full bg-gray-50 hover:bg-gray-100 border-none rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-black/5 focus:outline-none transition-all placeholder-gray-400 font-medium text-gray-900";
@@ -45,19 +136,67 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                                 <div>
                                     <label className={labelClasses}>Customer Name</label>
-                                    <input type="text" className={inputClasses} placeholder="e.g. Marcin A. Pascua" />
+                                    <input 
+                                        type="text" 
+                                        className={`${inputClasses} ${errors.name ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        placeholder="e.g. Marcin A. Pascua" 
+                                        value={customerData.name}
+                                        onChange={(e) => {
+                                            setCustomerData({...customerData, name: e.target.value});
+                                            if (errors.name) {
+                                                const newErrors = {...errors};
+                                                delete newErrors.name;
+                                                setErrors(newErrors);
+                                            }
+                                        }}
+                                    />
+                                    {errors.name && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.name}</p>}
                                 </div>
                                 <div>
                                     <label className={labelClasses}>Shipping Address</label>
-                                    <input type="text" className={inputClasses} placeholder="Enter address" />
+                                    <input 
+                                        type="text" 
+                                        className={`${inputClasses} ${errors.address ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        placeholder="Enter address" 
+                                        value={customerData.address}
+                                        onChange={(e) => {
+                                            setCustomerData({...customerData, address: e.target.value});
+                                            if (errors.address) {
+                                                const newErrors = {...errors};
+                                                delete newErrors.address;
+                                                setErrors(newErrors);
+                                            }
+                                        }}
+                                    />
+                                    {errors.address && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.address}</p>}
                                 </div>
                                 <div>
                                     <label className={labelClasses}>Contact Number</label>
-                                    <input type="text" className={inputClasses} placeholder="Enter contact details" />
+                                    <input 
+                                        type="text" 
+                                        className={`${inputClasses} ${errors.contact ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        placeholder="Enter contact details" 
+                                        value={customerData.contact}
+                                        onChange={(e) => {
+                                            setCustomerData({...customerData, contact: e.target.value});
+                                            if (errors.contact) {
+                                                const newErrors = {...errors};
+                                                delete newErrors.contact;
+                                                setErrors(newErrors);
+                                            }
+                                        }}
+                                    />
+                                    {errors.contact && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.contact}</p>}
                                 </div>
                                 <div>
                                     <label className={labelClasses}>TIN</label>
-                                    <input type="text" className={inputClasses} placeholder="000-000-000-000" />
+                                    <input 
+                                        type="text" 
+                                        className={inputClasses} 
+                                        placeholder="000-000-000-000" 
+                                        value={customerData.tin}
+                                        onChange={(e) => setCustomerData({...customerData, tin: e.target.value})}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -67,21 +206,56 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
                             <h3 className={sectionTitleClasses}>Invoice Details</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
                                 <div>
-                                    <label className={labelClasses}>Invoice Date</label>
-                                    <input type="date" className={inputClasses} />
+                                    <label className={labelClasses}>Invoice Number</label>
+                                    <input 
+                                        type="text" 
+                                        className={`${inputClasses} ${errors.invoiceNumber ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        placeholder="e.g. PMC-2026-001"
+                                        value={customerData.invoiceNumber}
+                                        onChange={(e) => {
+                                            setCustomerData({...customerData, invoiceNumber: e.target.value});
+                                            if (errors.invoiceNumber) {
+                                                const newErrors = {...errors};
+                                                delete newErrors.invoiceNumber;
+                                                setErrors(newErrors);
+                                            }
+                                        }}
+                                    />
+                                    {errors.invoiceNumber && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.invoiceNumber}</p>}
                                 </div>
                                 <div>
-                                    <label className={labelClasses}>Terms</label>
-                                    <select className={`${inputClasses} appearance-none cursor-pointer`}>
-                                        <option>Due on Receipt</option>
-                                        <option>Net 15</option>
-                                        <option>Net 30</option>
-                                        <option>Net 60</option>
-                                    </select>
+                                    <label className={labelClasses}>Invoice Date</label>
+                                    <input 
+                                        type="date" 
+                                        className={`${inputClasses} ${errors.date ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        value={customerData.date}
+                                        onChange={(e) => {
+                                            setCustomerData({...customerData, date: e.target.value});
+                                            if (errors.date) {
+                                                const newErrors = {...errors};
+                                                delete newErrors.date;
+                                                setErrors(newErrors);
+                                            }
+                                        }}
+                                    />
                                 </div>
                                 <div>
                                     <label className={labelClasses}>Sales Person</label>
-                                    <input type="text" className={inputClasses} placeholder="e.g. LBSARINO" />
+                                    <input 
+                                        type="text" 
+                                        className={`${inputClasses} ${errors.salesPerson ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        placeholder="e.g. LBSARINO" 
+                                        value={customerData.salesPerson}
+                                        onChange={(e) => {
+                                            setCustomerData({...customerData, salesPerson: e.target.value});
+                                            if (errors.salesPerson) {
+                                                const newErrors = {...errors};
+                                                delete newErrors.salesPerson;
+                                                setErrors(newErrors);
+                                            }
+                                        }}
+                                    />
+                                    {errors.salesPerson && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.salesPerson}</p>}
                                 </div>
                             </div>
                         </div>
@@ -90,30 +264,56 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
                         <div className="pb-4">
                             <div className="flex justify-between items-center mb-5">
                                 <h3 className={sectionTitleClasses} style={{ marginBottom: 0 }}>Line Items</h3>
-                                <button type="button" onClick={handleAddItem} className="text-[11px] font-bold uppercase tracking-widest text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
-                                    + Add Item
-                                </button>
+                                <div className="flex items-center gap-4">
+                                    {errors.items && <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">{errors.items}</span>}
+                                    <button type="button" onClick={handleAddItem} className="text-[11px] font-bold uppercase tracking-widest text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                                        + Add Item
+                                    </button>
+                                </div>
                             </div>
                             
                             <div className="space-y-3">
                                 {items.map((item, index) => (
                                     <div key={index} className="flex items-start gap-3 group relative">
                                         <div className="grid grid-cols-12 gap-3 flex-1">
-                                            <div className="col-span-3">
-                                                {index === 0 && <label className={labelClasses}>Product Code</label>}
-                                                <input type="text" placeholder="Code" className={inputClasses} />
-                                            </div>
                                             <div className="col-span-5">
-                                                {index === 0 && <label className={labelClasses}>Description</label>}
-                                                <input type="text" placeholder="Item description" className={inputClasses} />
+                                                {index === 0 && <label className={labelClasses}>Product</label>}
+                                                <select 
+                                                    value={item.code} 
+                                                    onChange={(e) => handleUpdateItem(index, 'code', e.target.value)}
+                                                    className={`${inputClasses} appearance-none cursor-pointer`}
+                                                >
+                                                    {predefinedItems.map(p => (
+                                                        <option key={p.code} value={p.code}>{p.code === 'SELECT' ? 'Select Product' : p.code}</option>
+                                                    ))}
+                                                </select>
                                             </div>
                                             <div className="col-span-2">
                                                 {index === 0 && <label className={labelClasses}>Unit Cost</label>}
-                                                <input type="number" placeholder="0.00" className={inputClasses} />
+                                                <input 
+                                                    type="number" 
+                                                    placeholder="0.00" 
+                                                    className={inputClasses} 
+                                                    value={item.cost}
+                                                    onChange={(e) => handleUpdateItem(index, 'cost', e.target.value)}
+                                                />
                                             </div>
                                             <div className="col-span-2">
                                                 {index === 0 && <label className={labelClasses}>Qty</label>}
-                                                <input type="number" min="1" placeholder="1" className={inputClasses} defaultValue={1} />
+                                                <input 
+                                                    type="number" 
+                                                    min="1" 
+                                                    placeholder="1" 
+                                                    className={inputClasses} 
+                                                    value={item.qty}
+                                                    onChange={(e) => handleUpdateItem(index, 'qty', e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="col-span-3">
+                                                {index === 0 && <label className={labelClasses}>Subtotal</label>}
+                                                <div className={`${inputClasses} flex items-center justify-end font-black text-black bg-gray-50/30`}>
+                                                    {( (parseFloat(item.cost) || 0) * (parseFloat(item.qty) || 0) ).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </div>
                                             </div>
                                         </div>
                                         <button 
@@ -134,7 +334,7 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
                 {/* Footer */}
                 <div className="px-8 py-5 flex justify-between items-center shrink-0 border-t border-gray-50">
                     <div className="text-sm font-semibold text-gray-500">
-                        Total Amount: <span className="text-2xl font-black text-black ml-1.5 tracking-tight">PHP 0.00</span>
+                        Total Amount: <span className="text-2xl font-black text-black ml-1.5 tracking-tight">PHP {calculateTotal().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <div className="flex gap-3">
                         <button 
@@ -143,7 +343,7 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
                         >
                             Cancel
                         </button>
-                        <button className="px-6 py-3 bg-black hover:bg-gray-900 text-white rounded-xl font-bold transition-all shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 text-sm">
+                        <button onClick={handleCreateInvoice} className="px-6 py-3 bg-black hover:bg-gray-900 text-white rounded-xl font-bold transition-all shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 text-sm">
                             Create Invoice
                         </button>
                     </div>

@@ -13,37 +13,37 @@ export default function VerifyEmail({ status }) {
 
     return (
         <GuestLayout>
-            <Head title="Email Verification" />
+            <header className="mb-8 text-center">
+                <h2 className="text-3xl font-black text-gray-900 tracking-tight">Verify Email</h2>
+                <p className="text-sm font-medium text-gray-500 mt-2">One last step to secure your account.</p>
+            </header>
 
-            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                Thanks for signing up! Before getting started, could you verify
-                your email address by clicking on the link we just emailed to
-                you? If you didn't receive the email, we will gladly send you
-                another.
+            <div className="mb-8 text-sm font-medium text-gray-500 leading-relaxed text-center">
+                Thanks for signing up! Please verify your email address by clicking the link we just sent you. If you didn't receive it, we'll gladly send another.
             </div>
 
             {status === 'verification-link-sent' && (
-                <div className="mb-4 text-sm font-medium text-green-600 dark:text-green-400">
-                    A new verification link has been sent to the email address
-                    you provided during registration.
+                <div className="mb-8 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-sm font-bold text-emerald-700 text-center animate-in fade-in slide-in-from-top-2 duration-300">
+                    A new verification link has been sent to your email address.
                 </div>
             )}
 
-            <form onSubmit={submit}>
-                <div className="mt-4 flex items-center justify-between">
-                    <PrimaryButton disabled={processing}>
-                        Resend Verification Email
-                    </PrimaryButton>
+            <form onSubmit={submit} className="space-y-4">
+                <button 
+                    disabled={processing}
+                    className="w-full py-4 bg-black text-white rounded-2xl font-bold text-sm hover:bg-gray-800 transform active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg shadow-black/5"
+                >
+                    Resend Verification Email
+                </button>
 
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                    >
-                        Log Out
-                    </Link>
-                </div>
+                <Link
+                    href={route('logout')}
+                    method="post"
+                    as="button"
+                    className="w-full py-3 text-xs font-black text-gray-400 hover:text-red-600 uppercase tracking-widest transition-colors"
+                >
+                    Log Out
+                </Link>
             </form>
         </GuestLayout>
     );

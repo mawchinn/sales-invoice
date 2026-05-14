@@ -1,0 +1,94 @@
+import React, { useState } from 'react';
+
+export default function CreateProductModal({ isOpen, onClose }) {
+    if (!isOpen) return null;
+
+    const inputClasses = "w-full bg-gray-50 hover:bg-gray-100 border-none rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-black/5 focus:outline-none transition-all placeholder-gray-400 font-medium text-gray-900";
+    const labelClasses = "text-[11px] font-semibold tracking-wide text-gray-500 mb-1.5 block";
+    const sectionTitleClasses = "text-xs font-bold uppercase tracking-widest text-black mb-5";
+
+    return (
+        <div className="fixed inset-0 z-[110] flex justify-center items-center bg-black/40 backdrop-blur-sm overflow-y-auto py-10 px-4 sm:px-10 opacity-100 transition-opacity">
+            <div className="bg-white w-full max-w-2xl rounded-[24px] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-full">
+                
+                {/* Header */}
+                <div className="px-8 py-5 flex justify-between items-center shrink-0 bg-black text-white rounded-t-[24px]">
+                    <h2 className="text-2xl font-black tracking-tight">Add New Product</h2>
+                    <button 
+                        onClick={onClose}
+                        className="p-2 -mr-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+
+                {/* Form Body */}
+                <div className="px-8 pt-10 pb-10 overflow-y-auto flex-1">
+                    <form className="space-y-8">
+                        
+                        {/* Basic Information */}
+                        <div>
+                            <h3 className={sectionTitleClasses}>Basic Information</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                <div className="md:col-span-2">
+                                    <label className={labelClasses}>Product Name</label>
+                                    <input type="text" className={inputClasses} placeholder="e.g. iPhone 15 Pro Max" />
+                                </div>
+                                <div>
+                                    <label className={labelClasses}>Product Code / SKU</label>
+                                    <input type="text" className={inputClasses} placeholder="e.g. IP15-PRO-MAX" />
+                                </div>
+                                <div>
+                                    <label className={labelClasses}>Category</label>
+                                    <select className={`${inputClasses} appearance-none cursor-pointer`}>
+                                        <option>Phones</option>
+                                        <option>Laptops</option>
+                                        <option>Accessories</option>
+                                        <option>Tablets</option>
+                                        <option>Wearables</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Pricing & Stock */}
+                        <div>
+                            <h3 className={sectionTitleClasses}>Pricing & Inventory</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                <div>
+                                    <label className={labelClasses}>Unit Price (PHP)</label>
+                                    <input type="number" className={inputClasses} placeholder="0.00" />
+                                </div>
+                                <div>
+                                    <label className={labelClasses}>Initial Stock Level</label>
+                                    <input type="number" className={inputClasses} placeholder="0" />
+                                </div>
+                                <div>
+                                    <label className={labelClasses}>Reorder Point (Low Stock Alert)</label>
+                                    <input type="number" className={inputClasses} placeholder="e.g. 10" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                {/* Footer */}
+                <div className="px-8 py-5 flex justify-end items-center shrink-0 border-t border-gray-50 bg-gray-50/30">
+                    <div className="flex gap-3">
+                        <button 
+                            onClick={onClose}
+                            className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors text-sm"
+                        >
+                            Cancel
+                        </button>
+                        <button className="px-8 py-3 bg-black hover:bg-gray-900 text-white rounded-xl font-bold transition-all shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 text-sm">
+                            Save Product
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    );
+}

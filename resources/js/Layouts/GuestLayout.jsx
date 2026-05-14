@@ -1,18 +1,21 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Link } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
     return (
-        <div className="flex min-h-screen flex-col items-center bg-gray-100 pt-6 sm:justify-center sm:pt-0 dark:bg-gray-900">
-            <div>
-                <Link href="/">
-                    <ApplicationLogo className="h-20 w-20 fill-current text-gray-500" />
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 selection:bg-black selection:text-white">
+            <div className="mb-10">
+                <Link href="/" className="transition-transform hover:scale-105 inline-block">
+                    <img src="/powermac-logo.png" alt="Power Mac Center" className="h-16 object-contain" />
                 </Link>
             </div>
 
-            <div className="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md sm:max-w-md sm:rounded-lg dark:bg-gray-800">
+            <div className="w-full max-w-md bg-white p-10 rounded-[40px] shadow-2xl shadow-black/5 border border-gray-100 animate-in fade-in zoom-in duration-500">
                 {children}
             </div>
+            
+            <p className="mt-8 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                © 2024 Power Mac Center
+            </p>
         </div>
     );
 }

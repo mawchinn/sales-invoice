@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import SidebarLayout from '@/Layouts/SidebarLayout';
 import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
@@ -6,34 +6,33 @@ import UpdateProfileInformationForm from './Partials/UpdateProfileInformationFor
 
 export default function Edit({ mustVerifyEmail, status }) {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Profile
-                </h2>
-            }
-        >
+        <SidebarLayout>
             <Head title="Profile" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800">
+            <div className="flex flex-col gap-10 pb-10">
+                <div>
+                    <h1 className="text-5xl font-black text-gray-900 tracking-tight">Settings</h1>
+                    <p className="text-lg font-medium text-gray-500 mt-2">Manage your account preferences and security.</p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-8">
+                    <div className="bg-white p-8 lg:p-12 rounded-[32px] border border-gray-100 shadow-sm">
                         <UpdateProfileInformationForm
                             mustVerifyEmail={mustVerifyEmail}
                             status={status}
-                            className="max-w-xl"
+                            className="max-w-2xl"
                         />
                     </div>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800">
-                        <UpdatePasswordForm className="max-w-xl" />
+                    <div className="bg-white p-8 lg:p-12 rounded-[32px] border border-gray-100 shadow-sm">
+                        <UpdatePasswordForm className="max-w-2xl" />
                     </div>
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800">
-                        <DeleteUserForm className="max-w-xl" />
+                    <div className="bg-white p-8 lg:p-12 rounded-[32px] border border-red-50 shadow-sm">
+                        <DeleteUserForm className="max-w-2xl" />
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </SidebarLayout>
     );
 }

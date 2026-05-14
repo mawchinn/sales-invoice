@@ -1,30 +1,90 @@
 import CreateInvoiceModal from '@/Components/CreateInvoiceModal';
+import Dropdown from '@/Components/Dropdown';
 import InvoiceTemplate from '@/Components/InvoiceTemplate';
 import SidebarLayout from '@/Layouts/SidebarLayout';
-import { Head, Link } from '@inertiajs/react';
-import React, { useState } from 'react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import React, { useState, useMemo, useEffect } from 'react';
+
+const mockInvoices = [
+    { id: 1, date: '17 Jan 2028', invoiceNumber: '11784', orderNumber: 'PO-9921', customerName: 'MARCIN A. PASCUA', status: 'PAID', dueDate: '17 Jan 2028', amount: 'PHP 39,990.00', balanceDue: 'PHP 0.00' },
+    { id: 2, date: '17 Jan 2028', invoiceNumber: '11785', orderNumber: 'PO-9922', customerName: 'RICARDO PASCUAL', status: 'DRAFT', dueDate: '20 Jan 2028', amount: 'PHP 25,222.00', balanceDue: 'PHP 25,222.00' },
+    { id: 3, date: '16 Jan 2028', invoiceNumber: '11786', orderNumber: 'PO-9923', customerName: 'ELENA SANTOS', status: 'PARTIALLY PAID', dueDate: '16 Feb 2028', amount: 'PHP 120,500.00', balanceDue: 'PHP 60,000.00' },
+    { id: 4, date: '15 Jan 2028', invoiceNumber: '11787', orderNumber: 'PO-9924', customerName: 'RAFAEL MENDEZ', status: 'OPEN', dueDate: '15 Feb 2028', amount: 'PHP 88,426.00', balanceDue: 'PHP 88,426.00' },
+    { id: 5, date: '14 Jan 2028', invoiceNumber: '11788', orderNumber: 'PO-9925', customerName: 'SOPHIA CHUA', status: 'PARTIALLY PAID', dueDate: '14 Feb 2028', amount: 'PHP 176,105.00', balanceDue: 'PHP 76,105.00' },
+    { id: 6, date: '13 Jan 2028', invoiceNumber: '11789', orderNumber: 'PO-9926', customerName: 'GABRIEL REYES', status: 'DRAFT', dueDate: '13 Feb 2028', amount: 'PHP 218,729.00', balanceDue: 'PHP 218,729.00' },
+    { id: 7, date: '12 Jan 2028', invoiceNumber: '11790', orderNumber: 'PO-9927', customerName: 'MARIA LEONOR', status: 'PAID', dueDate: '12 Jan 2028', amount: 'PHP 319,174.00', balanceDue: 'PHP 0.00' },
+    { id: 8, date: '11 Jan 2028', invoiceNumber: '11791', orderNumber: 'PO-9928', customerName: 'ANTONIO LUNA', status: 'PENDING', dueDate: '11 Feb 2028', amount: 'PHP 423,895.00', balanceDue: 'PHP 423,895.00' },
+    { id: 9, date: '10 Jan 2028', invoiceNumber: '11792', orderNumber: 'PO-9929', customerName: 'ISABELLA GARCIA', status: 'OPEN', dueDate: '10 Feb 2028', amount: 'PHP 235,062.00', balanceDue: 'PHP 235,062.00' },
+];
 
 export default function InvoicesIndex() {
+    const { url } = usePage();
+    
     const [selectedInvoice, setSelectedInvoice] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    const mockInvoices = [
-        { id: 1, date: '17 Jan 2028', invoiceNumber: '11784', orderNumber: 'PO-9921', customerName: 'MARCIN A. PASCUA', status: 'PAID', dueDate: '17 Jan 2028', amount: 'PHP 39,990.00', balanceDue: 'PHP 0.00' },
-        { id: 2, date: '17 Jan 2028', invoiceNumber: '11785', orderNumber: 'PO-9922', customerName: 'JOHN DOE', status: 'DRAFT', dueDate: '20 Jan 2028', amount: 'PHP 25,222.00', balanceDue: 'PHP 25,222.00' },
-        { id: 3, date: '16 Jan 2028', invoiceNumber: '11786', orderNumber: 'PO-9923', customerName: 'JANE SMITH', status: 'PARTIALLY PAID', dueDate: '16 Feb 2028', amount: 'PHP 120,500.00', balanceDue: 'PHP 60,000.00' },
-        { id: 4, date: '15 Jan 2028', invoiceNumber: '11787', orderNumber: 'PO-9924', customerName: 'ACME CORP', status: 'OPEN', dueDate: '15 Feb 2028', amount: 'PHP 88,426.00', balanceDue: 'PHP 88,426.00' },
-        { id: 5, date: '14 Jan 2028', invoiceNumber: '11788', orderNumber: 'PO-9925', customerName: 'TECH SOLUTIONS', status: 'PARTIALLY PAID', dueDate: '14 Feb 2028', amount: 'PHP 176,105.00', balanceDue: 'PHP 76,105.00' },
-        { id: 6, date: '13 Jan 2028', invoiceNumber: '11789', orderNumber: 'PO-9926', customerName: 'GLOBAL EXPORTS', status: 'DRAFT', dueDate: '13 Feb 2028', amount: 'PHP 218,729.00', balanceDue: 'PHP 218,729.00' },
-        { id: 7, date: '12 Jan 2028', invoiceNumber: '11790', orderNumber: 'PO-9927', customerName: 'LOCAL IMPORTS', status: 'PAID', dueDate: '12 Jan 2028', amount: 'PHP 319,174.00', balanceDue: 'PHP 0.00' },
-        { id: 8, date: '11 Jan 2028', invoiceNumber: '11791', orderNumber: 'PO-9928', customerName: 'RETAIL GROUP', status: 'PENDING', dueDate: '11 Feb 2028', amount: 'PHP 423,895.00', balanceDue: 'PHP 423,895.00' },
-        { id: 9, date: '10 Jan 2028', invoiceNumber: '11792', orderNumber: 'PO-9929', customerName: 'WHOLESALE INC', status: 'OPEN', dueDate: '10 Feb 2028', amount: 'PHP 235,062.00', balanceDue: 'PHP 235,062.00' },
-    ];
+    // Initialize search query from URL if present
+    const [searchQuery, setSearchQuery] = useState(() => {
+        const params = new URLSearchParams(url.split('?')[1]);
+        return params.get('search') || '';
+    });
+    
+    const [statusFilter, setStatusFilter] = useState('All Statuses');
+    const [currencyFilter, setCurrencyFilter] = useState('PHP');
+    const [sortOrder, setSortOrder] = useState('Newest');
 
-    const totalPages = Math.ceil(mockInvoices.length / itemsPerPage);
+    // Update search query if URL changes (for global search from within the page)
+    useEffect(() => {
+        const params = new URLSearchParams(url.split('?')[1]);
+        const search = params.get('search');
+        if (search !== null) {
+            setSearchQuery(search);
+            setCurrentPage(1);
+        }
+    }, [url]);
+
+    const filteredInvoices = useMemo(() => {
+        return mockInvoices
+            .filter(invoice => {
+                const matchesSearch = 
+                    invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    invoice.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    invoice.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
+                
+                const matchesStatus = statusFilter === 'All Statuses' || invoice.status === statusFilter;
+                
+                // For currency, we just check if the amount string contains the currency code
+                const matchesCurrency = currencyFilter === 'All Currencies' || invoice.amount.includes(currencyFilter);
+                
+                return matchesSearch && matchesStatus && matchesCurrency;
+            })
+            .sort((a, b) => {
+                if (sortOrder === 'Newest') return b.id - a.id;
+                if (sortOrder === 'Oldest') return a.id - b.id;
+                
+                const amountA = parseFloat(a.amount.replace(/[^\d.-]/g, ''));
+                const amountB = parseFloat(b.amount.replace(/[^\d.-]/g, ''));
+                
+                if (sortOrder === 'Amount: High to Low') return amountB - amountA;
+                if (sortOrder === 'Amount: Low to High') return amountA - amountB;
+                
+                return 0;
+            });
+    }, [searchQuery, statusFilter, currencyFilter, sortOrder]);
+
+    const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentInvoices = mockInvoices.slice(startIndex, startIndex + itemsPerPage);
+    const currentInvoices = filteredInvoices.slice(startIndex, startIndex + itemsPerPage);
+
+    const handleRefresh = () => {
+        setSearchQuery('');
+        setStatusFilter('All Statuses');
+        setCurrencyFilter('PHP');
+        setSortOrder('Newest');
+        setCurrentPage(1);
+    };
 
     const getStatusStyle = (status) => {
         switch(status) {
@@ -60,8 +120,14 @@ export default function InvoicesIndex() {
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between group hover:border-black/20 transition-all cursor-default">
-                        <div className="flex justify-between items-start mb-4">
+                    <button 
+                        onClick={() => {
+                            setStatusFilter('OPEN'); // Or logic to show both
+                            setCurrentPage(1);
+                        }}
+                        className="bg-white p-6 rounded-2xl border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between group hover:border-black/20 hover:shadow-lg transition-all cursor-pointer text-left w-full"
+                    >
+                        <div className="flex justify-between items-start mb-4 w-full">
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-snug">Total<br/>Outstanding</span>
                             <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white group-hover:border-black transition-colors">
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
@@ -70,7 +136,7 @@ export default function InvoicesIndex() {
                         <div>
                             <div className="text-2xl font-black text-gray-900 tracking-tight">PHP 3,109</div>
                         </div>
-                    </div>
+                    </button>
                     
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] flex flex-col justify-between group hover:border-gray-200 transition-all cursor-default">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-snug mb-4">Due<br/>Today</span>
@@ -102,29 +168,98 @@ export default function InvoicesIndex() {
                             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-black transition-colors">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                             </div>
-                            <input type="text" placeholder="Search invoices..." className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black/30 text-sm font-medium transition-all shadow-sm" />
+                            <input 
+                                type="text" 
+                                placeholder="Search invoices..." 
+                                value={searchQuery}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-black/30 text-sm font-medium transition-all shadow-sm" 
+                            />
                         </div>
                         
                         <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-                            <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm min-w-[140px]">
-                                <div className="flex items-center gap-2">
-                                    <div className="flex">
-                                        <span className="w-2.5 h-2.5 rounded-full bg-black -mr-1 border border-white"></span>
-                                        <span className="w-2.5 h-2.5 rounded-full bg-gray-300 border border-white"></span>
-                                    </div>
-                                    All Statuses
-                                </div>
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                            </button>
-                            <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
-                                PHP
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                            </button>
-                            <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
-                                Sort: <span className="text-black">Newest</span>
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                            </button>
-                            <button className="p-2 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-black hover:border-gray-300 transition-colors shadow-sm shrink-0">
+                            <Dropdown>
+                                <Dropdown.Trigger>
+                                    <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm min-w-[140px]">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex">
+                                                <span className={`w-2.5 h-2.5 rounded-full ${statusFilter === 'All Statuses' ? 'bg-black' : 'bg-gray-300'} -mr-1 border border-white`}></span>
+                                                <span className={`w-2.5 h-2.5 rounded-full ${statusFilter !== 'All Statuses' ? 'bg-black' : 'bg-gray-300'} border border-white`}></span>
+                                            </div>
+                                            {statusFilter}
+                                        </div>
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </button>
+                                </Dropdown.Trigger>
+                                <Dropdown.Content align="left" width="48" contentClasses="py-2 bg-white shadow-xl border border-gray-100">
+                                    {['All Statuses', 'PAID', 'DRAFT', 'PARTIALLY PAID', 'OPEN', 'PENDING'].map((status) => (
+                                        <button
+                                            key={status}
+                                            onClick={() => {
+                                                setStatusFilter(status);
+                                                setCurrentPage(1);
+                                            }}
+                                            className="block w-full px-4 py-2.5 text-start text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                                        >
+                                            {status}
+                                        </button>
+                                    ))}
+                                </Dropdown.Content>
+                            </Dropdown>
+
+                            <Dropdown>
+                                <Dropdown.Trigger>
+                                    <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
+                                        {currencyFilter}
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </button>
+                                </Dropdown.Trigger>
+                                <Dropdown.Content align="left" width="48" contentClasses="py-2 bg-white shadow-xl border border-gray-100">
+                                    {['All Currencies', 'PHP', 'USD', 'EUR'].map((curr) => (
+                                        <button
+                                            key={curr}
+                                            onClick={() => {
+                                                setCurrencyFilter(curr);
+                                                setCurrentPage(1);
+                                            }}
+                                            className="block w-full px-4 py-2.5 text-start text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                                        >
+                                            {curr}
+                                        </button>
+                                    ))}
+                                </Dropdown.Content>
+                            </Dropdown>
+
+                            <Dropdown>
+                                <Dropdown.Trigger>
+                                    <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
+                                        Sort: <span className="text-black">{sortOrder}</span>
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                    </button>
+                                </Dropdown.Trigger>
+                                <Dropdown.Content align="right" width="48" contentClasses="py-2 bg-white shadow-xl border border-gray-100">
+                                    {['Newest', 'Oldest', 'Amount: High to Low', 'Amount: Low to High'].map((order) => (
+                                        <button
+                                            key={order}
+                                            onClick={() => {
+                                                setSortOrder(order);
+                                                setCurrentPage(1);
+                                            }}
+                                            className="block w-full px-4 py-2.5 text-start text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                                        >
+                                            {order}
+                                        </button>
+                                    ))}
+                                </Dropdown.Content>
+                            </Dropdown>
+
+                            <button 
+                                onClick={handleRefresh}
+                                className="p-2 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-black hover:border-gray-300 transition-colors shadow-sm shrink-0"
+                            >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                             </button>
                         </div>
@@ -141,8 +276,8 @@ export default function InvoicesIndex() {
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Customer</th>
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Status</th>
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Due Date</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-right">Amount</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-right">Balance</th>
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Amount</th>
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Balance</th>
                                     <th className="px-4 py-4"></th>
                                 </tr>
                             </thead>
@@ -165,8 +300,8 @@ export default function InvoicesIndex() {
                                             </span>
                                         </td>
                                         <td className="px-4 py-4 font-medium text-gray-600 whitespace-nowrap">{invoice.dueDate}</td>
-                                        <td className="px-4 py-4 text-right font-bold text-gray-900 whitespace-nowrap">{invoice.amount}</td>
-                                        <td className="px-4 py-4 text-right font-bold text-gray-900 whitespace-nowrap">{invoice.balanceDue}</td>
+                                        <td className="px-4 py-4 font-bold text-gray-900 whitespace-nowrap">{invoice.amount}</td>
+                                        <td className="px-4 py-4 font-bold text-gray-900 whitespace-nowrap">{invoice.balanceDue}</td>
                                         <td className="px-4 py-5 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button 
@@ -203,7 +338,7 @@ export default function InvoicesIndex() {
                     {/* Pagination */}
                     <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-gray-100 bg-white gap-4">
                         <div className="text-sm font-medium text-gray-500">
-                            Showing <span className="font-bold text-gray-900">{startIndex + 1}</span> to <span className="font-bold text-gray-900">{Math.min(startIndex + itemsPerPage, mockInvoices.length)}</span> of <span className="font-bold text-gray-900">{mockInvoices.length}</span>
+                            Showing <span className="font-bold text-gray-900">{filteredInvoices.length > 0 ? startIndex + 1 : 0}</span> to <span className="font-bold text-gray-900">{Math.min(startIndex + itemsPerPage, filteredInvoices.length)}</span> of <span className="font-bold text-gray-900">{filteredInvoices.length}</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1.5">

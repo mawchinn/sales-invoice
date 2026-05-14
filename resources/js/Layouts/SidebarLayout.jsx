@@ -1,9 +1,26 @@
-import { Link, usePage } from '@inertiajs/react';
+import Dropdown from '@/Components/Dropdown';
+import { Link, usePage, router } from '@inertiajs/react';
 import React, { useState } from 'react';
 
 export default function SidebarLayout({ children }) {
     const user = usePage().props.auth.user;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [globalSearch, setGlobalSearch] = useState('');
+    const [notifications, setNotifications] = useState([
+        { id: 1, title: 'New Invoice Created', description: 'Invoice #11792 for WHOLESALE INC', time: '2 mins ago', type: 'info' },
+        { id: 2, title: 'Payment Received', description: 'Payment for Invoice #11784 received', time: '1 hour ago', type: 'success' },
+        { id: 3, title: 'Invoice Overdue', description: 'Invoice #11787 is now 3 days overdue', time: '5 hours ago', type: 'warning' },
+    ]);
+
+    const handleGlobalSearch = (e) => {
+        e.preventDefault();
+        if (globalSearch.trim()) {
+            router.get(route('invoices.index'), { search: globalSearch }, {
+                preserveState: true,
+                replace: true
+            });
+        }
+    };
 
     return (
         <div className="flex h-screen bg-[#f8f9fa] text-gray-900 font-sans selection:bg-black selection:text-white">
@@ -22,13 +39,10 @@ export default function SidebarLayout({ children }) {
                         href={route('dashboard')} 
                         className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${route().current('dashboard') ? 'bg-black text-white shadow-md shadow-gray-300/50' : 'text-gray-500 hover:bg-gray-50 hover:text-black'}`}
                     >
-                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                        <span className="tracking-wide">Home</span>
+                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        <span className="tracking-wide">Dashboard</span>
                     </Link>
 
-                    <div className="pt-6 pb-2">
-                        <p className="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Sales & Finance</p>
-                    </div>
 
                     <Link 
                         href={route('invoices.index')} 
@@ -37,18 +51,33 @@ export default function SidebarLayout({ children }) {
                         <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         <span className="tracking-wide">Invoices</span>
                     </Link>
+
+                    <Link 
+                        href={route('inventory.index')} 
+                        className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${route().current('inventory.*') ? 'bg-black text-white shadow-md shadow-gray-300/50' : 'text-gray-500 hover:bg-gray-50 hover:text-black'}`}
+                    >
+                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                        <span className="tracking-wide">Inventory</span>
+                    </Link>
+
+                    <Link 
+                        href={route('reports.index')} 
+                        className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${route().current('reports.*') ? 'bg-black text-white shadow-md shadow-gray-300/50' : 'text-gray-500 hover:bg-gray-50 hover:text-black'}`}
+                    >
+                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span className="tracking-wide">Reports</span>
+                    </Link>
                 </nav>
 
-                {/* Bottom User Area on Sidebar (Optional/Minimal) */}
-                <div className="p-4 border-t border-gray-50 shrink-0">
+                <div className="p-4 shrink-0 border-t border-gray-50">
                     <Link 
                         href={route('logout')} 
                         method="post" 
                         as="button" 
-                        className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-500 hover:bg-gray-50 hover:text-black transition-all duration-200"
+                        className="flex items-center gap-3.5 w-full px-4 py-3 rounded-xl font-bold text-red-500 hover:bg-red-50 hover:text-red-700 transition-all duration-200"
                     >
                         <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        <span className="font-medium tracking-wide">Logout</span>
+                        <span className="tracking-wide">Logout</span>
                     </Link>
                 </div>
             </aside>
@@ -68,37 +97,74 @@ export default function SidebarLayout({ children }) {
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
                         </button>
                         
-                        <div className="hidden md:flex relative w-full max-w-md group">
+                        <form onSubmit={handleGlobalSearch} className="hidden md:flex relative w-full max-w-md group">
                             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-black transition-colors">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                             </div>
-                            <input type="text" placeholder="Search for anything..." className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-black/5 focus:border-black/20 text-sm transition-all duration-200 placeholder-gray-400 font-medium" />
-                        </div>
+                            <input 
+                                type="text" 
+                                placeholder="Search for anything..." 
+                                value={globalSearch}
+                                onChange={(e) => setGlobalSearch(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-black/5 focus:border-black/20 text-sm transition-all duration-200 placeholder-gray-400 font-medium" 
+                            />
+                        </form>
                     </div>
 
                     <div className="flex items-center gap-4 lg:gap-6">
-                        <button className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-black transition-colors px-2 py-1 rounded-md hover:bg-gray-50">
-                            En
-                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                        </button>
                         
-                        <button className="p-2 text-gray-400 hover:text-black relative rounded-lg hover:bg-gray-50 transition-colors">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-black rounded-full border-2 border-white"></span>
-                        </button>
-                        
-                        <div className="h-6 w-px bg-gray-200 hidden sm:block"></div>
-                        
-                        <div className="flex items-center gap-3 cursor-pointer group px-1 py-1 rounded-lg hover:bg-gray-50 transition-colors">
-                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 group-hover:border-gray-300 transition-colors shrink-0">
-                                <span className="text-gray-600 font-bold text-sm tracking-wider">{user?.name?.charAt(0) || 'U'}</span>
+                        <Link 
+                            href={route('profile.edit')}
+                            className="flex items-center gap-3 cursor-pointer group px-2 py-1.5 rounded-xl hover:bg-gray-50 transition-all active:scale-[0.98]"
+                        >
+                            <div className="hidden lg:block text-right">
+                                <p className="text-[13px] font-bold text-gray-900 leading-none mb-1 group-hover:text-black transition-colors">{user?.name || 'User'}</p>
+                                <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">Administrator</p>
                             </div>
-                            <div className="hidden lg:block text-sm">
-                                <p className="font-semibold text-gray-900 leading-none mb-1">{user?.name || 'User'}</p>
-                                <p className="text-gray-500 text-xs font-medium">Administrator</p>
+                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 group-hover:border-black/10 group-hover:shadow-sm transition-all shrink-0 overflow-hidden">
+                                <span className="text-gray-600 font-bold text-sm tracking-wider group-hover:text-black transition-colors">{user?.name?.charAt(0) || 'U'}</span>
                             </div>
-                            <svg className="w-4 h-4 text-gray-400 hidden lg:block group-hover:text-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                        </div>
+                        </Link>
+
+
+                        <Dropdown>
+                            <Dropdown.Trigger>
+                                <button className="p-2 text-gray-400 hover:text-black relative rounded-lg hover:bg-gray-50 transition-colors focus:outline-none">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                                    <span className="absolute top-2 right-2 w-2 h-2 bg-black rounded-full border-2 border-white"></span>
+                                </button>
+                            </Dropdown.Trigger>
+                            <Dropdown.Content align="right" width="96" contentClasses="py-0 bg-white shadow-2xl border border-gray-100 overflow-hidden">
+                                <div className="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                                    <h3 className="font-bold text-sm text-gray-900">Notifications</h3>
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest bg-white px-2 py-0.5 rounded-md border border-gray-100 shadow-sm">3 New</span>
+                                </div>
+                                <div className="max-h-[350px] overflow-y-auto">
+                                    {notifications.map((notif) => (
+                                        <Link 
+                                            key={notif.id} 
+                                            href={route('invoices.index')}
+                                            className="block p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer group"
+                                        >
+                                            <div className="flex gap-3">
+                                                <div className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${notif.type === 'success' ? 'bg-emerald-500' : notif.type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'}`}></div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-gray-900 group-hover:text-black transition-colors">{notif.title}</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5 font-medium leading-relaxed">{notif.description}</p>
+                                                    <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-wider">{notif.time}</p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                                <Link 
+                                    href={route('invoices.index')}
+                                    className="block w-full py-3 text-center text-xs font-bold text-gray-500 hover:text-black hover:bg-gray-50 transition-all border-t border-gray-50 uppercase tracking-widest"
+                                >
+                                    View All Notifications
+                                </Link>
+                            </Dropdown.Content>
+                        </Dropdown>
                     </div>
                 </header>
 
