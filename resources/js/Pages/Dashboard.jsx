@@ -25,8 +25,8 @@ export default function Dashboard() {
 
     const recentActivity = [
         { id: 1, type: 'Invoice', user: 'Marcin Pascua', action: 'created Invoice #11792', time: '2 mins ago' },
-        { id: 2, type: 'Stock', user: 'Inventory Bot', action: 'restocked AirPods Pro 2 (+50 units)', time: '15 mins ago' },
-        { id: 3, type: 'Payment', user: 'System', action: 'received payment for Invoice #11784', time: '1 hour ago' },
+        { id: 2, type: 'Stock', user: 'Marcin Pascua', action: 'updated iPhone 15 Pro stock (+24 units)', time: '15 mins ago' },
+        { id: 3, type: 'Inventory', user: 'Marcin Pascua', action: 'modified unit cost for MacBook Pro 14"', time: '1 hour ago' },
         { id: 4, type: 'Report', user: 'Marcin Pascua', action: 'generated Monthly Sales Report', time: '3 hours ago' },
     ];
 
@@ -106,7 +106,8 @@ export default function Dashboard() {
                                         switch(activity.type) {
                                             case 'Invoice':
                                             case 'Payment': return 'invoices.index';
-                                            case 'Stock': return 'inventory.index';
+                                            case 'Stock': 
+                                            case 'Inventory': return 'inventory.index';
                                             case 'Report': return 'reports.index';
                                             default: return 'dashboard';
                                         }

@@ -7,6 +7,7 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
         name: '',
         code: '',
         category: 'Phones',
+        description: '',
         price: '',
         stock: ''
     });
@@ -19,7 +20,8 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
                 name: productToEdit.name || '',
                 code: productToEdit.code || '',
                 category: productToEdit.category || 'Phones',
-                price: productToEdit.sales ? parseFloat(productToEdit.sales.replace(/[^0-9.]/g, '')) : '',
+                description: productToEdit.description || '',
+                price: productToEdit.unitCost ? parseFloat(productToEdit.unitCost.replace(/[^0-9.]/g, '')) : '',
                 stock: productToEdit.onHand || ''
             });
         } else {
@@ -27,6 +29,7 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
                 name: '',
                 code: '',
                 category: 'Phones',
+                description: '',
                 price: '',
                 stock: ''
             });
@@ -55,6 +58,8 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
                 name: productData.name,
                 code: productData.code,
                 category: productData.category,
+                description: productData.description,
+                unitCost: `PHP ${parseFloat(productData.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                 onHand: parseInt(productData.stock) || 0,
             });
         } else if (onCreate) {
@@ -63,6 +68,8 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
                 name: productData.name,
                 code: productData.code,
                 category: productData.category,
+                description: productData.description,
+                unitCost: `PHP ${parseFloat(productData.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                 onHand: parseInt(productData.stock) || 0,
                 reorderPoint: 10,
                 sold: 0,
@@ -109,6 +116,16 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
                                         onChange={(e) => setProductData({...productData, name: e.target.value})}
                                     />
                                     {errors.name && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.name}</p>}
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className={labelClasses}>Product Description</label>
+                                    <textarea 
+                                        rows="3"
+                                        className={`${inputClasses} resize-none`} 
+                                        placeholder="Enter detailed product description..." 
+                                        value={productData.description}
+                                        onChange={(e) => setProductData({...productData, description: e.target.value})}
+                                    ></textarea>
                                 </div>
                                 <div>
                                     <label className={labelClasses}>Product Code / SKU</label>

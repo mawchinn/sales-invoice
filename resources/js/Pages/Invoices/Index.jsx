@@ -6,15 +6,15 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import React, { useState, useMemo, useEffect } from 'react';
 
 const initialMockInvoices = [
-    { id: 1, date: '17 Jan 2028', invoiceNumber: '11784', orderNumber: 'PO-9921', customerName: 'MARCIN A. PASCUA', status: 'CASH', dueDate: '17 Jan 2028', amount: 'PHP 39,990.00', balanceDue: 'PHP 0.00', items: [{ code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 39990.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
-    { id: 2, date: '17 Jan 2028', invoiceNumber: '11785', orderNumber: 'PO-9922', customerName: 'RICARDO PASCUAL', status: 'CASH', dueDate: '20 Jan 2028', amount: 'PHP 25,222.00', balanceDue: 'PHP 25,222.00', items: [{ code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 25222.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
-    { id: 3, date: '16 Jan 2028', invoiceNumber: '11786', orderNumber: 'PO-9923', customerName: 'ELENA SANTOS', status: 'INSTALLMENT', dueDate: '16 Feb 2028', amount: 'PHP 120,500.00', balanceDue: 'PHP 60,000.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 120500.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
-    { id: 4, date: '15 Jan 2028', invoiceNumber: '11787', orderNumber: 'PO-9924', customerName: 'RAFAEL MENDEZ', status: 'CASH', dueDate: '15 Feb 2028', amount: 'PHP 88,426.00', balanceDue: 'PHP 88,426.00', items: [{ code: 'IPAD-AIR5', description: 'iPad Air (5th Generation) Wi-Fi 64GB Blue', cost: 44213.00, qty: 2 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
-    { id: 5, date: '14 Jan 2028', invoiceNumber: '11788', orderNumber: 'PO-9925', customerName: 'SOPHIA CHUA', status: 'INSTALLMENT', dueDate: '14 Feb 2028', amount: 'PHP 176,105.00', balanceDue: 'PHP 76,105.00', items: [{ code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 70990.00, qty: 2 }, { code: 'AIRPODS-P2', description: 'AirPods Pro (2nd Generation)', cost: 17062.50, qty: 2 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
-    { id: 6, date: '13 Jan 2028', invoiceNumber: '11789', orderNumber: 'PO-9926', customerName: 'GABRIEL REYES', status: 'INSTALLMENT', dueDate: '13 Feb 2028', amount: 'PHP 218,729.00', balanceDue: 'PHP 218,729.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00, qty: 2 }, { code: 'AIRPODS-P2', description: 'AirPods Pro (2nd Generation)', cost: 18749.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
-    { id: 7, date: '12 Jan 2028', invoiceNumber: '11790', orderNumber: 'PO-9927', customerName: 'MARIA LEONOR', status: 'CASH', dueDate: '12 Jan 2028', amount: 'PHP 319,174.00', balanceDue: 'PHP 0.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00, qty: 3 }, { code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 19204.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
-    { id: 8, date: '11 Jan 2028', invoiceNumber: '11791', orderNumber: 'PO-9928', customerName: 'ANTONIO LUNA', status: 'CASH', dueDate: '11 Feb 2028', amount: 'PHP 423,895.00', balanceDue: 'PHP 423,895.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00, qty: 4 }, { code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 23935.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
-    { id: 9, date: '10 Jan 2028', invoiceNumber: '11792', orderNumber: 'PO-9929', customerName: 'ISABELLA GARCIA', status: 'INSTALLMENT', dueDate: '10 Feb 2028', amount: 'PHP 235,062.00', balanceDue: 'PHP 235,062.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00, qty: 2 }, { code: 'IPAD-AIR5', description: 'iPad Air (5th Generation) Wi-Fi 64GB Blue', cost: 35082.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 1, date: '17 Jan 2028', invoiceNumber: '11784', orderNumber: 'PO-9921', customerName: 'MARCIN A. PASCUA', address: '123 MAIN ST, MANDAUE CITY', status: 'CASH', dueDate: '17 Jan 2028', amount: 'PHP 70,990.00', balanceDue: 'PHP 0.00', items: [{ code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 70990.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 2, date: '17 Jan 2028', invoiceNumber: '11785', orderNumber: 'PO-9922', customerName: 'RICARDO PASCUAL', address: '456 OAK AVE, CEBU CITY', status: 'CASH', dueDate: '20 Jan 2028', amount: 'PHP 26,490.00', balanceDue: 'PHP 26,490.00', items: [{ code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 26490.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 3, date: '16 Jan 2028', invoiceNumber: '11786', orderNumber: 'PO-9923', customerName: 'ELENA SANTOS', address: '789 PINE RD, LAPU-LAPU CITY', status: 'CASH', dueDate: '16 Feb 2028', amount: 'PHP 104,990.00', balanceDue: 'PHP 60,000.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 104990.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 4, date: '15 Jan 2028', invoiceNumber: '11787', orderNumber: 'PO-9924', customerName: 'RAFAEL MENDEZ', status: 'CASH', dueDate: '15 Feb 2028', amount: 'PHP 71,980.00', balanceDue: 'PHP 71,980.00', items: [{ code: 'IPAD-AIR5', description: 'iPad Air (5th Generation) Wi-Fi 64GB Blue', cost: 35990.00, qty: 2 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 5, date: '14 Jan 2028', invoiceNumber: '11788', orderNumber: 'PO-9925', customerName: 'SOPHIA CHUA', status: 'CASH', dueDate: '14 Feb 2028', amount: 'PHP 171,960.00', balanceDue: 'PHP 76,105.00', items: [{ code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 70990.00, qty: 2 }, { code: 'AIRPODS-P2', description: 'AirPods Pro (2nd Generation)', cost: 14990.00, qty: 2 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 6, date: '13 Jan 2028', invoiceNumber: '11789', orderNumber: 'PO-9926', customerName: 'GABRIEL REYES', status: 'CASH', dueDate: '13 Feb 2028', amount: 'PHP 224,970.00', balanceDue: 'PHP 224,970.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 104990.00, qty: 2 }, { code: 'AIRPODS-P2', description: 'AirPods Pro (2nd Generation)', cost: 14990.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 7, date: '12 Jan 2028', invoiceNumber: '11790', orderNumber: 'PO-9927', customerName: 'MARIA LEONOR', status: 'CASH', dueDate: '12 Jan 2028', amount: 'PHP 341,460.00', balanceDue: 'PHP 0.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 104990.00, qty: 3 }, { code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 26490.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 8, date: '11 Jan 2028', invoiceNumber: '11791', orderNumber: 'PO-9928', customerName: 'ANTONIO LUNA', status: 'CASH', dueDate: '11 Feb 2028', amount: 'PHP 490,950.00', balanceDue: 'PHP 490,950.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 104990.00, qty: 4 }, { code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 70990.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 9, date: '10 Jan 2028', invoiceNumber: '11792', orderNumber: 'PO-9929', customerName: 'ISABELLA GARCIA', status: 'CASH', dueDate: '10 Feb 2028', amount: 'PHP 245,970.00', balanceDue: 'PHP 245,970.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 104990.00, qty: 2 }, { code: 'IPAD-AIR5', description: 'iPad Air (5th Generation) Wi-Fi 64GB Blue', cost: 35990.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
 ];
 
 export default function InvoicesIndex() {
@@ -28,7 +28,8 @@ export default function InvoicesIndex() {
         }
     };
     const [selectedInvoice, setSelectedInvoice] = useState(null);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [invoiceToEdit, setInvoiceToEdit] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
@@ -114,7 +115,10 @@ export default function InvoicesIndex() {
                         <p className="text-sm font-medium text-gray-500 mt-1">Manage and track your payment summaries.</p>
                     </div>
                     <button 
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => {
+                            setInvoiceToEdit(null);
+                            setIsModalOpen(true);
+                        }}
                         className="bg-black hover:bg-gray-900 text-white px-5 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition-all shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
@@ -187,58 +191,6 @@ export default function InvoicesIndex() {
                         <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
                             <Dropdown>
                                 <Dropdown.Trigger>
-                                    <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm min-w-[140px]">
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex">
-                                                <span className={`w-2.5 h-2.5 rounded-full ${statusFilter === 'All Methods' ? 'bg-black' : 'bg-gray-300'} -mr-1 border border-white`}></span>
-                                                <span className={`w-2.5 h-2.5 rounded-full ${statusFilter !== 'All Methods' ? 'bg-black' : 'bg-gray-300'} border border-white`}></span>
-                                            </div>
-                                            {statusFilter}
-                                        </div>
-                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                                    </button>
-                                </Dropdown.Trigger>
-                                <Dropdown.Content align="left" width="48" contentClasses="py-2 bg-white shadow-xl border border-gray-100">
-                                    {['All Methods', 'CASH', 'INSTALLMENT'].map((status) => (
-                                        <button
-                                            key={status}
-                                            onClick={() => {
-                                                setStatusFilter(status);
-                                                setCurrentPage(1);
-                                            }}
-                                            className="block w-full px-4 py-2.5 text-start text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
-                                        >
-                                            {status}
-                                        </button>
-                                    ))}
-                                </Dropdown.Content>
-                            </Dropdown>
-
-                            <Dropdown>
-                                <Dropdown.Trigger>
-                                    <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
-                                        {currencyFilter}
-                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                                    </button>
-                                </Dropdown.Trigger>
-                                <Dropdown.Content align="left" width="48" contentClasses="py-2 bg-white shadow-xl border border-gray-100">
-                                    {['All Currencies', 'PHP', 'USD', 'EUR'].map((curr) => (
-                                        <button
-                                            key={curr}
-                                            onClick={() => {
-                                                setCurrencyFilter(curr);
-                                                setCurrentPage(1);
-                                            }}
-                                            className="block w-full px-4 py-2.5 text-start text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
-                                        >
-                                            {curr}
-                                        </button>
-                                    ))}
-                                </Dropdown.Content>
-                            </Dropdown>
-
-                            <Dropdown>
-                                <Dropdown.Trigger>
                                     <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
                                         Sort: <span className="text-black">{sortOrder}</span>
                                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -260,12 +212,6 @@ export default function InvoicesIndex() {
                                 </Dropdown.Content>
                             </Dropdown>
 
-                            <button 
-                                onClick={handleRefresh}
-                                className="p-2 bg-white border border-gray-200 rounded-xl text-gray-400 hover:text-black hover:border-gray-300 transition-colors shadow-sm shrink-0"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                            </button>
                         </div>
                     </div>
 
@@ -278,62 +224,79 @@ export default function InvoicesIndex() {
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Invoice #</th>
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Order</th>
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Customer</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Payment Method</th>
+
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-center">Qty</th>
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Unit Cost</th>
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Amount</th>
                                     <th className="px-4 py-4"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50 bg-white">
-                                {currentInvoices.map((invoice, idx) => (
-                                    <tr 
-                                        key={idx} 
-                                        className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
-                                        onClick={() => setSelectedInvoice(invoice)}
-                                    >
-                                        <td className="px-4 py-4 font-medium text-gray-600 whitespace-nowrap">{invoice.date}</td>
-                                        <td className="px-4 py-4 whitespace-nowrap">
-                                            <span className="font-bold text-gray-900 group-hover:text-black group-hover:underline decoration-2 underline-offset-4 transition-all">#{invoice.invoiceNumber}</span>
-                                        </td>
-                                        <td className="px-4 py-4 text-gray-400 whitespace-nowrap">{invoice.orderNumber}</td>
-                                        <td className="px-4 py-4 font-semibold text-gray-800">{invoice.customerName}</td>
-                                        <td className="px-4 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-1 text-[10px] font-extrabold tracking-widest uppercase border rounded-md ${getStatusStyle(invoice.status)}`}>
-                                                {invoice.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-4 font-bold text-gray-900 whitespace-nowrap">{invoice.amount}</td>
-                                        <td className="px-4 py-5 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button 
-                                                    className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors focus:outline-none"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    title="Edit"
-                                                >
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                                                </button>
-                                                <button 
-                                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDeleteInvoice(invoice.invoiceNumber);
-                                                    }}
-                                                    title="Delete"
-                                                >
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                </button>
-                                                <button 
-                                                    className="px-3 py-1.5 bg-black text-white rounded-lg text-xs font-bold hover:bg-gray-900 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-black/5 focus:ring-offset-1"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation(); // Prevents double firing since the row is clickable
-                                                        setSelectedInvoice(invoice);
-                                                    }}
-                                                >
-                                                    View
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {currentInvoices.map((invoice, idx) => {
+                                    const totalQty = (invoice.items || []).reduce((acc, item) => acc + item.qty, 0);
+                                    const firstItemCost = invoice.items && invoice.items.length > 0 ? invoice.items[0].cost : 0;
+                                    const hasMultipleItems = invoice.items && invoice.items.length > 1;
+
+                                    return (
+                                        <tr 
+                                            key={idx} 
+                                            className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
+                                            onClick={() => setSelectedInvoice(invoice)}
+                                        >
+                                            <td className="px-4 py-4 font-medium text-gray-600 whitespace-nowrap">{invoice.date}</td>
+                                            <td className="px-4 py-4 whitespace-nowrap">
+                                                <span className="font-bold text-gray-900 group-hover:text-black group-hover:underline decoration-2 underline-offset-4 transition-all">#{invoice.invoiceNumber}</span>
+                                            </td>
+                                            <td className="px-4 py-4 text-gray-400 whitespace-nowrap">{invoice.orderNumber}</td>
+                                            <td className="px-4 py-4 font-semibold text-gray-800">{invoice.customerName}</td>
+
+                                            <td className="px-4 py-4 text-center font-bold text-gray-900">{totalQty}</td>
+                                            <td className="px-4 py-4 whitespace-nowrap">
+                                                <div className="flex flex-col">
+                                                    <span className="font-bold text-gray-900">PHP {firstItemCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                    {hasMultipleItems && (
+                                                        <span className="text-[9px] font-bold text-blue-500 uppercase tracking-tighter leading-none mt-0.5">+ {invoice.items.length - 1} other items</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-4 font-bold text-gray-900 whitespace-nowrap">{invoice.amount}</td>
+                                            <td className="px-4 py-5 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button 
+                                                        className="px-3 py-1.5 bg-black text-white rounded-lg text-xs font-bold hover:bg-gray-900 transition-all shadow-sm focus:outline-none"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedInvoice(invoice);
+                                                        }}
+                                                    >
+                                                        View
+                                                    </button>
+                                                    <button 
+                                                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors focus:outline-none"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setInvoiceToEdit(invoice);
+                                                            setIsModalOpen(true);
+                                                        }}
+                                                        title="Edit"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                                    </button>
+                                                    <button 
+                                                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteInvoice(invoice.invoiceNumber);
+                                                        }}
+                                                        title="Delete"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
@@ -429,13 +392,23 @@ export default function InvoicesIndex() {
                 </div>
             )}
 
-            {/* Create Invoice Modal */}
+            {/* Create/Edit Invoice Modal */}
             <CreateInvoiceModal 
-                isOpen={isCreateModalOpen} 
-                onClose={() => setIsCreateModalOpen(false)}
+                key={invoiceToEdit ? `edit-${invoiceToEdit.id}` : 'create'}
+                isOpen={isModalOpen} 
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setInvoiceToEdit(null);
+                }}
+                invoice={invoiceToEdit}
                 onCreate={(newInvoice) => {
                     setInvoices(prev => [newInvoice, ...prev]);
-                    setIsCreateModalOpen(false);
+                    setIsModalOpen(false);
+                }}
+                onUpdate={(updatedInvoice) => {
+                    setInvoices(prev => prev.map(inv => inv.id === updatedInvoice.id ? updatedInvoice : inv));
+                    setIsModalOpen(false);
+                    setInvoiceToEdit(null);
                 }}
             />
 

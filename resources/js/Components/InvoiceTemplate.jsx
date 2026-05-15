@@ -52,10 +52,11 @@ export default function InvoiceTemplate({ invoice }) {
                     </div>
                     <div className="w-[35%] border-r border-black p-1 pb-4">
                         <div>Shipping Address:</div>
-                        <div className="text-gray-500 uppercase mt-1 px-4">REGISTERED ADDRESS</div>
+                        <div className="text-gray-500 uppercase mt-1 px-4">{invoice.address || 'REGISTERED ADDRESS'}</div>
                     </div>
                     <div className="w-[15%] border-r border-black p-1">
                         <div>Contact:</div>
+                        <div className="text-gray-500 uppercase mt-1 px-2">{invoice.contact}</div>
                     </div>
                     <div className="w-[20%] p-1 relative">
                         <div>PO:</div>
@@ -69,6 +70,7 @@ export default function InvoiceTemplate({ invoice }) {
                 <div className="flex">
                     <div className="w-[30%] border-r border-black p-1">
                         <div>TIN:</div>
+                        <div className="text-gray-500 uppercase mt-1 px-4">{invoice.tin}</div>
                     </div>
                     <div className="flex-1 p-1">
                         <div>Terms:</div>
@@ -163,46 +165,62 @@ export default function InvoiceTemplate({ invoice }) {
 
                 {/* Right Totals Section */}
                 <div className="w-[45%] flex flex-col text-[10px] pl-4">
-                    <div className="flex">
-                        {/* VAT Info */}
-                        <div className="w-[40%] text-right pr-2 space-y-1">
-                            <div>VATable Sales</div>
-                            <div>VAT</div>
-                            <div>Zero-Rated Sales</div>
-                            <div>VAT-Exempt Sales</div>
-                        </div>
-                        {/* PHP Column */}
-                        <div className="w-[15%] text-gray-400 space-y-1">
-                            <div>PHP</div>
-                            <div>PHP</div>
-                            <div>PHP</div>
-                            <div>PHP</div>
-                        </div>
-                        {/* Totals Label Column */}
-                        <div className="w-[25%] space-y-1.5">
-                            <div className="font-bold leading-tight">Total Sales<br /><span className="text-[8px] font-normal">(VAT Inclusive)</span></div>
-                            <div className="pt-1">Less: VAT</div>
-                            <div className="pt-1">Amount Net of VAT</div>
-                            <div className="pt-1 leading-tight">Less: Discount<br /><span className="text-[8px]">[SC/PWD/NAAC/MOV/SP]</span></div>
-                            <div className="pt-1">Add: VAT</div>
-                            <div className="pt-1">Less: Withholding Tax</div>
-                        </div>
-                        {/* Values Column */}
-                        <div className="w-[20%] text-right text-black space-y-1.5">
-                            <div className="font-semibold">{invoice.amount.replace('PHP ', '')}</div>
-                            <div>0.00</div>
-                            <div>0.00</div>
-                            <div className="pt-1">0.00</div>
-                            <div className="pt-1">0.00</div>
-                            <div className="pt-1">0.00</div>
-                        </div>
-                    </div>
+                    {(() => {
+                        const totalAmount = parseFloat(invoice.amount.replace(/[^0-9.]/g, '')) || 0;
+                        const vatableSales = totalAmount / 1.12;
+                        const vatAmount = totalAmount - vatableSales;
+                        const format = (val) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                        return (
+                            <div className="flex">
+                                {/* VAT Info */}
+                                <div className="w-[40%] text-right pr-2 space-y-1">
+                                    <div>VATable Sales</div>
+                                    <div>VAT</div>
+                                    <div>Zero-Rated Sales</div>
+                                    <div>VAT-Exempt Sales</div>
+                                </div>
+                                {/* PHP Column */}
+                                <div className="w-[15%] text-gray-400 space-y-1">
+                                    <div>PHP</div>
+                                    <div>PHP</div>
+                                    <div>PHP</div>
+                                    <div>PHP</div>
+                                </div>
+                                {/* Values Column for left side info */}
+                                <div className="w-[20%] text-right text-black space-y-1 pr-2">
+                                    <div>{format(vatableSales)}</div>
+                                    <div>{format(vatAmount)}</div>
+                                    <div>0.00</div>
+                                    <div>0.00</div>
+                                </div>
+                                {/* Totals Label Column */}
+                                <div className="w-[25%] space-y-1.5 border-l border-gray-100 pl-4 ml-4">
+                                    <div className="font-bold leading-tight">Total Sales<br /><span className="text-[8px] font-normal">(VAT Inclusive)</span></div>
+                                    <div className="pt-1">Less: VAT</div>
+                                    <div className="pt-1">Amount Net of VAT</div>
+                                    <div className="pt-1 leading-tight text-[8px]">Less: Discount</div>
+                                    <div className="pt-1">Add: VAT</div>
+                                    <div className="pt-1">Less: Withholding Tax</div>
+                                </div>
+                                {/* Values Column */}
+                                <div className="w-[30%] text-right text-black space-y-1.5">
+                                    <div className="font-semibold">{format(totalAmount)}</div>
+                                    <div>{format(vatAmount)}</div>
+                                    <div>{format(vatableSales)}</div>
+                                    <div className="pt-1">0.00</div>
+                                    <div className="pt-1">{format(vatAmount)}</div>
+                                    <div className="pt-1">0.00</div>
+                                </div>
+                            </div>
+                        );
+                    })()}
 
                     {/* Final Totals & Signatures */}
                     <div className="mt-6 flex flex-col items-end gap-6">
                         <div className="flex items-baseline gap-4">
                             <span className="font-bold text-[13px]">TOTAL AMOUNT DUE:</span>
-                            <span className="font-black text-[15px]">{invoice.amount.replace('PHP ', '')}</span>
+                            <span className="font-black text-[15px]">{parseFloat(invoice.amount.replace(/[^0-9.]/g, '')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
 
                         <div className="w-full max-w-[200px] flex flex-col gap-4">

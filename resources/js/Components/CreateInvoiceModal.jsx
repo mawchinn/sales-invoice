@@ -3,30 +3,66 @@ import React, { useState } from 'react';
 const predefinedItems = [
     { code: 'SELECT', description: 'Select a product...', cost: 0 },
     { code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 70990.00 },
-    { code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00 },
+    { code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 104990.00 },
     { code: 'AIRPODS-P2', description: 'AirPods Pro (2nd Generation) with MagSafe', cost: 14990.00 },
     { code: 'IPAD-AIR5', description: 'iPad Air (5th Generation) Wi-Fi 64GB Blue', cost: 35990.00 },
-    { code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 24990.00 },
+    { code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 26490.00 },
 ];
 
-export default function CreateInvoiceModal({ isOpen, onClose, onCreate }) {
+export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate, invoice = null }) {
     if (!isOpen) return null;
 
-    const [customerData, setCustomerData] = useState({
-        invoiceNumber: `PMC-2026-${Math.floor(Math.random() * 900) + 100}`,
-        name: '',
-        address: '',
-        contact: '',
-        tin: '',
-        date: new Date().toISOString().split('T')[0],
-        salesPerson: '',
-        cashier: '',
-        paymentMethod: 'CASH'
+    const isEdit = !!invoice;
+
+    const [customerData, setCustomerData] = useState(() => {
+        if (isEdit) {
+            // Try to parse the date string (e.g., "17 Jan 2028") to YYYY-MM-DD
+            let formattedDate = '';
+            try {
+                const dateObj = new Date(invoice.date);
+                if (!isNaN(dateObj.getTime())) {
+                    formattedDate = dateObj.toISOString().split('T')[0];
+                }
+            } catch (e) {
+                formattedDate = new Date().toISOString().split('T')[0];
+            }
+
+            return {
+                invoiceNumber: invoice.invoiceNumber,
+                name: invoice.customerName,
+                address: invoice.address || '', // Might be missing in mock
+                contact: invoice.contact || '',
+                tin: invoice.tin || '',
+                date: formattedDate,
+                salesPerson: invoice.salesPerson,
+                cashier: invoice.cashier,
+                paymentMethod: 'CASH'
+            };
+        }
+        return {
+            invoiceNumber: `PMC-2026-${Math.floor(Math.random() * 900) + 100}`,
+            name: '',
+            address: '',
+            contact: '',
+            tin: '',
+            date: new Date().toISOString().split('T')[0],
+            salesPerson: '',
+            cashier: '',
+            paymentMethod: 'CASH'
+        };
     });
 
-    const [items, setItems] = useState([
-        { code: 'SELECT', description: '', cost: 0, qty: 1 }
-    ]);
+    const [items, setItems] = useState(() => {
+        if (isEdit && invoice.items) {
+            return invoice.items.map(item => ({
+                code: item.code,
+                description: item.description,
+                cost: item.cost,
+                qty: item.qty
+            }));
+        }
+        return [{ code: 'SELECT', description: '', cost: 0, qty: 1 }];
+    });
 
     const [errors, setErrors] = useState({});
 
@@ -93,7 +129,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate }) {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleCreateInvoice = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         if (validateForm()) {
             const amountNum = calculateTotal();
@@ -110,11 +146,11 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate }) {
                 dueDateStr = dueDateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
             }
 
-            const newInvoice = {
-                id: Date.now(),
+            const invoiceData = {
+                id: isEdit ? invoice.id : Date.now(),
                 date: dateStr,
                 invoiceNumber: customerData.invoiceNumber,
-                orderNumber: 'N/A',
+                orderNumber: isEdit ? invoice.orderNumber : 'N/A',
                 customerName: customerData.name,
                 salesPerson: customerData.salesPerson,
                 cashier: customerData.cashier,
@@ -127,13 +163,19 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate }) {
                     description: item.description,
                     cost: parseFloat(item.cost),
                     qty: parseInt(item.qty)
-                }))
+                })),
+                // Preserve additional fields if editing
+                address: customerData.address,
+                contact: customerData.contact,
+                tin: customerData.tin
             };
             
-            if (onCreate) {
-                onCreate(newInvoice);
+            if (isEdit && onUpdate) {
+                onUpdate(invoiceData);
+            } else if (!isEdit && onCreate) {
+                onCreate(invoiceData);
             } else {
-                console.log('Invoice Created:', newInvoice);
+                console.log('Invoice Saved:', invoiceData);
                 onClose();
             }
         }
@@ -157,7 +199,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate }) {
                 
                 {/* Header */}
                 <div className="px-8 py-5 flex justify-between items-center shrink-0 bg-black text-white rounded-t-[24px]">
-                    <h2 className="text-3xl font-black tracking-tight">Create Invoice</h2>
+                    <h2 className="text-3xl font-black tracking-tight">{isEdit ? 'Edit' : 'Create'} Invoice</h2>
                     <button 
                         onClick={onClose}
                         className="p-2 -mr-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
@@ -410,8 +452,8 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate }) {
                         >
                             Cancel
                         </button>
-                        <button onClick={handleCreateInvoice} className="px-6 py-3 bg-black hover:bg-gray-900 text-white rounded-xl font-bold transition-all shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 text-sm">
-                            Create Invoice
+                        <button onClick={handleSubmit} className="px-6 py-3 bg-black hover:bg-gray-900 text-white rounded-xl font-bold transition-all shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 text-sm">
+                            {isEdit ? 'Update' : 'Create'} Invoice
                         </button>
                     </div>
                 </div>

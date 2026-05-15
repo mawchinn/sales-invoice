@@ -18,18 +18,18 @@ export default function ReportsIndex() {
 
     const reportsData = {
         'Sales Summary': {
-            headers: ['Date', 'Invoice', 'Customer', 'Amount', 'Payment Method'],
+            headers: ['Date', 'Invoice', 'Customer', 'Amount'],
             data: [
-                { id: 1, col1: '2026-05-15', col2: '#11793', col3: 'MARIA LEONOR', col4: 12500.00, col5: 'CASH' },
-                { id: 2, col1: '2026-05-14', col2: '#11792', col3: 'ANTONIO LUNA', col4: 235062.00, col5: 'INSTALLMENT' },
-                { id: 3, col1: '2026-05-10', col2: '#11791', col3: 'ISABELLA GARCIA', col4: 423895.00, col5: 'CASH' },
-                { id: 4, col1: '2026-04-28', col2: '#11790', col3: 'GABRIEL REYES', col4: 319174.00, col5: 'INSTALLMENT' },
-                { id: 5, col1: '2026-04-15', col2: '#11789', col3: 'SOPHIA CHUA', col4: 218729.00, col5: 'CASH' },
-                { id: 6, col1: '2026-03-22', col2: '#11788', col3: 'RICARDO PASCUAL', col4: 88500.00, col5: 'CASH' },
-                { id: 7, col1: '2026-03-05', col2: '#11787', col3: 'ELENA SANTOS', col4: 156000.00, col5: 'INSTALLMENT' },
-                { id: 8, col1: '2026-02-18', col2: '#11786', col3: 'RAFAEL MENDEZ', col4: 45200.00, col5: 'CASH' },
-                { id: 9, col1: '2026-02-10', col2: '#11785', col3: 'ANTONIO LUNA', col4: 92000.00, col5: 'INSTALLMENT' },
-                { id: 10, col1: '2026-01-25', col2: '#11784', col3: 'MARIA LEONOR', col4: 120500.00, col5: 'CASH' },
+                { id: 1, col1: '2026-05-15', col2: '#11793', col3: 'MARIA LEONOR', col4: 12500.00 },
+                { id: 2, col1: '2026-05-14', col2: '#11792', col3: 'ANTONIO LUNA', col4: 235062.00 },
+                { id: 3, col1: '2026-05-10', col2: '#11791', col3: 'ISABELLA GARCIA', col4: 423895.00 },
+                { id: 4, col1: '2026-04-28', col2: '#11790', col3: 'GABRIEL REYES', col4: 319174.00 },
+                { id: 5, col1: '2026-04-15', col2: '#11789', col3: 'SOPHIA CHUA', col4: 218729.00 },
+                { id: 6, col1: '2026-03-22', col2: '#11788', col3: 'RICARDO PASCUAL', col4: 88500.00 },
+                { id: 7, col1: '2026-03-05', col2: '#11787', col3: 'ELENA SANTOS', col4: 156000.00 },
+                { id: 8, col1: '2026-02-18', col2: '#11786', col3: 'RAFAEL MENDEZ', col4: 45200.00 },
+                { id: 9, col1: '2026-02-10', col2: '#11785', col3: 'ANTONIO LUNA', col4: 92000.00 },
+                { id: 10, col1: '2026-01-25', col2: '#11784', col3: 'MARIA LEONOR', col4: 120500.00 },
             ]
         },
         'Inventory Valuation': {
@@ -112,13 +112,9 @@ export default function ReportsIndex() {
 
     const handleExport = () => {
         const headers = currentReport.headers;
-        const rows = filteredData.map(item => [
-            item.col1,
-            item.col2,
-            item.col3,
-            item.col4,
-            item.col5
-        ]);
+        const rows = filteredData.map(item => {
+            return currentReport.headers.map((_, idx) => item[`col${idx + 1}`]);
+        });
         
         const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -252,27 +248,27 @@ export default function ReportsIndex() {
                         <tbody className="divide-y divide-gray-50">
                             {paginatedData.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group">
-                                    <td className="px-6 py-4 font-medium text-gray-600">{item.col1}</td>
-                                    <td className="px-6 py-4 font-bold text-gray-900 group-hover:text-black transition-colors">
-                                        {typeof item.col2 === 'number' ? `PHP ${item.col2.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : item.col2}
-                                    </td>
-                                    <td className="px-6 py-4 font-semibold text-gray-800">
-                                        {typeof item.col3 === 'number' ? `PHP ${item.col3.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : item.col3}
-                                    </td>
-                                    <td className="px-6 py-4 font-black text-gray-900">
-                                        {typeof item.col4 === 'number' ? `PHP ${item.col4.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : item.col4}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {typeof item.col5 === 'number' ? (
-                                            <span className="font-black text-gray-900">PHP {item.col5.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                        ) : (
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                                                item.col5 === 'CASH' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
-                                            }`}>
-                                                {item.col5}
-                                            </span>
-                                        )}
-                                    </td>
+                                    {currentReport.headers.map((_, idx) => {
+                                        const key = `col${idx + 1}`;
+                                        const val = item[key];
+                                        
+                                        // Specialized formatting based on column index and content
+                                        if (idx === 0) return <td key={key} className="px-6 py-4 font-medium text-gray-600">{val}</td>;
+                                        
+                                        return (
+                                            <td key={key} className="px-6 py-4">
+                                                {typeof val === 'number' ? (
+                                                    <span className={idx === currentReport.headers.length - 1 ? "font-black text-gray-900" : "font-bold text-gray-900"}>
+                                                        PHP {val.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                    </span>
+                                                ) : (
+                                                    <span className={idx === 1 ? "font-bold text-gray-900 group-hover:text-black transition-colors" : "font-semibold text-gray-800"}>
+                                                        {val}
+                                                    </span>
+                                                )}
+                                            </td>
+                                        );
+                                    })}
                                 </tr>
                             ))}
                         </tbody>
