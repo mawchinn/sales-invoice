@@ -4,7 +4,6 @@ export default function ProductViewModal({ isOpen, onClose, product }) {
     if (!isOpen || !product) return null;
 
     const labelClasses = "text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-1.5 block";
-    const valueClasses = "text-sm font-bold text-gray-900 bg-gray-50/50 px-4 py-3 rounded-xl border border-gray-100/50";
 
     return (
         <div className="fixed inset-0 z-[110] flex justify-center items-center bg-black/40 backdrop-blur-sm overflow-y-auto py-10 px-4 sm:px-10 opacity-100 transition-opacity">
@@ -25,62 +24,56 @@ export default function ProductViewModal({ isOpen, onClose, product }) {
                 </div>
 
                 {/* Body */}
-                <div className="px-8 py-8 overflow-y-auto flex-1 space-y-8">
+                <div className="px-8 py-8 overflow-y-auto flex-1 space-y-10">
                     {/* Basic Info Section */}
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-8">
                         <div className="col-span-2">
                             <label className={labelClasses}>Product Name</label>
-                            <div className="text-xl font-black text-gray-900 bg-gray-50 px-5 py-4 rounded-2xl border border-gray-100">
+                            <div className="text-2xl font-black text-gray-900">
                                 {product.name}
                             </div>
                         </div>
                         
                         <div>
                             <label className={labelClasses}>SKU / Code</label>
-                            <div className={valueClasses}>{product.code}</div>
+                            <div className="text-sm font-bold text-gray-900 bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-100 flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                                {product.code}
+                            </div>
                         </div>
                         
                         <div>
                             <label className={labelClasses}>Category</label>
-                            <div className={valueClasses}>{product.category}</div>
+                            <div className="text-sm font-bold text-gray-900 bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-100 flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                                {product.category}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Inventory Stats */}
-                    <div className="p-6 bg-black rounded-[24px] shadow-lg shadow-black/10">
-                        <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                            <div>
-                                <label className="text-[9px] font-black tracking-[0.2em] text-white/40 uppercase mb-1 block">On-Hand Stock</label>
-                                <div className="text-2xl font-black text-white">{product.onHand} <span className="text-[10px] text-white/40 font-bold ml-1 uppercase">Units</span></div>
-                            </div>
-                            <div>
-                                <label className="text-[9px] font-black tracking-[0.2em] text-white/40 uppercase mb-1 block">Total Sold</label>
-                                <div className="text-2xl font-black text-white">{product.sold} <span className="text-[10px] text-white/40 font-bold ml-1 uppercase text-emerald-400">Sold</span></div>
-                            </div>
-                            <div className="col-span-2 border-t border-white/10 pt-6">
-                                <label className="text-[9px] font-black tracking-[0.2em] text-white/40 uppercase mb-1 block">Unit Cost (VAT Inclusive)</label>
-                                <div className="text-3xl font-black text-emerald-400 tracking-tight">{product.unitCost}</div>
-                            </div>
+                    {/* Inventory Stats - White & Clean Version */}
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">On-Hand Stock</label>
+                            <div className="text-2xl font-black text-gray-900">{product.onHand} <span className="text-[11px] text-gray-400 font-bold ml-1 uppercase">Units</span></div>
+                        </div>
+                        <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Total Sold</label>
+                            <div className="text-2xl font-black text-gray-900">{product.sold} <span className="text-[11px] text-emerald-500 font-bold ml-1 uppercase">Sold</span></div>
+                        </div>
+                        <div className="col-span-2 p-6 bg-emerald-50/30 rounded-2xl border border-emerald-100/50">
+                            <label className="text-[10px] font-bold text-emerald-600/70 uppercase tracking-widest mb-1 block">Unit Cost (VAT Inclusive)</label>
+                            <div className="text-3xl font-black text-emerald-600 tracking-tight">{product.unitCost}</div>
                         </div>
                     </div>
 
                     {/* Description */}
                     <div>
                         <label className={labelClasses}>Product Description</label>
-                        <div className="text-sm font-medium text-gray-600 leading-relaxed bg-gray-50/50 p-5 rounded-2xl border border-gray-100/50 italic">
+                        <div className="text-sm font-medium text-gray-600 leading-relaxed bg-gray-50/50 p-5 rounded-2xl border border-gray-100/50">
                             {product.description || 'No description provided for this product.'}
                         </div>
                     </div>
-                </div>
-
-                {/* Footer */}
-                <div className="px-8 py-6 bg-gray-50 flex justify-end">
-                    <button 
-                        onClick={onClose}
-                        className="px-8 py-3 bg-black text-white rounded-2xl font-bold text-sm hover:bg-gray-800 transition-all shadow-md shadow-black/10 active:scale-95"
-                    >
-                        Close View
-                    </button>
                 </div>
             </div>
         </div>

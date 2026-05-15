@@ -175,16 +175,15 @@ export default function InventoryIndex() {
                 {/* Table Section */}
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="w-full table-fixed text-left text-sm">
                             <thead>
                                 <tr className="border-b border-gray-100 bg-white">
-                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400">Product</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400">Sold</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400">On-Hand</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400">Unit Cost</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400">Total Sales</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400">Status</th>
-                                    <th className="px-6 py-5"></th>
+                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[22%]">Product</th>
+                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[15%]">Sold</th>
+                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[15%]">On-Hand</th>
+                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[18%]">Total Sales</th>
+                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[15%]">Status</th>
+                                    <th className="px-6 py-5 w-[15%] text-right"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -196,17 +195,15 @@ export default function InventoryIndex() {
                                                 <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-tighter mt-0.5">{item.code} • {item.category}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5">
+                                        <td className="px-6 py-5 text-left">
                                             <span className="font-bold text-gray-700">{item.sold}</span>
                                         </td>
-                                        <td className="px-6 py-5">
+                                        <td className="px-6 py-5 text-left">
                                             <span className={`font-black ${item.onHand < 15 ? 'text-red-600' : item.onHand < 25 ? 'text-amber-600' : 'text-emerald-600'}`}>
                                                 {item.onHand}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-5 font-bold text-gray-900 whitespace-nowrap">
-                                            {item.unitCost || 'PHP 0.00'}
-                                        </td>
+
                                         <td className="px-6 py-5 font-black text-gray-900">
                                             {item.sales}
                                         </td>

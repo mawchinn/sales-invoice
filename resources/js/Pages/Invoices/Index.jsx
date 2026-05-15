@@ -217,25 +217,20 @@ export default function InvoicesIndex() {
 
                     {/* Table */}
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="w-full table-fixed text-left text-sm">
                             <thead>
                                 <tr className="border-b border-gray-100 bg-white text-gray-400">
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Date</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Invoice #</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Order</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Customer</th>
-
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-center">Qty</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Unit Cost</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Amount</th>
-                                    <th className="px-4 py-4"></th>
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest w-[16%]">Date</th>
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest w-[15%]">Invoice #</th>
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest w-[15%]">Order</th>
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest w-[20%]">Customer</th>
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest w-[18%]">Amount</th>
+                                    <th className="px-4 py-4 w-[16%] text-right"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50 bg-white">
                                 {currentInvoices.map((invoice, idx) => {
-                                    const totalQty = (invoice.items || []).reduce((acc, item) => acc + item.qty, 0);
-                                    const firstItemCost = invoice.items && invoice.items.length > 0 ? invoice.items[0].cost : 0;
-                                    const hasMultipleItems = invoice.items && invoice.items.length > 1;
+
 
                                     return (
                                         <tr 
@@ -250,15 +245,7 @@ export default function InvoicesIndex() {
                                             <td className="px-4 py-4 text-gray-400 whitespace-nowrap">{invoice.orderNumber}</td>
                                             <td className="px-4 py-4 font-semibold text-gray-800">{invoice.customerName}</td>
 
-                                            <td className="px-4 py-4 text-center font-bold text-gray-900">{totalQty}</td>
-                                            <td className="px-4 py-4 whitespace-nowrap">
-                                                <div className="flex flex-col">
-                                                    <span className="font-bold text-gray-900">PHP {firstItemCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                                    {hasMultipleItems && (
-                                                        <span className="text-[9px] font-bold text-blue-500 uppercase tracking-tighter leading-none mt-0.5">+ {invoice.items.length - 1} other items</span>
-                                                    )}
-                                                </div>
-                                            </td>
+
                                             <td className="px-4 py-4 font-bold text-gray-900 whitespace-nowrap">{invoice.amount}</td>
                                             <td className="px-4 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-2">
