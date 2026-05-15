@@ -4,36 +4,32 @@ import React, { useState } from 'react';
 import CreateInvoiceModal from '@/Components/CreateInvoiceModal';
 import CreateProductModal from '@/Components/CreateProductModal';
 
-export default function Dashboard() {
+export default function Dashboard({ stats: serverStats, salesData, recentInvoices, topProducts }) {
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
+    const formatCurrency = (amount) => {
+        return `PHP ${parseFloat(amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    };
+
+    const formatDate = (dateString) => {
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-GB', options).replace(/ /g, ' ');
+    };
+
     const stats = [
-        { label: 'Total Revenue', value: 'PHP 2.4M', growth: '+12.5%', link: 'reports.index', icon: (
+        { label: 'Total Revenue', value: formatCurrency(serverStats.totalRevenue), growth: '+12.5%', link: 'reports.index', icon: (
             <span className="text-lg font-black text-emerald-500 leading-none">₱</span>
         )},
-        { label: 'Active Invoices', value: '1,284', growth: '+3.2%', link: 'invoices.index', icon: (
+        { label: 'Total Invoices', value: serverStats.totalInvoices.toString(), growth: '+3.2%', link: 'invoices.index', icon: (
             <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
         )},
-        { label: 'Total Products', value: '458', growth: '+8 new', link: 'inventory.index', icon: (
+        { label: 'Total Products', value: serverStats.totalProducts.toString(), growth: '+8 new', link: 'inventory.index', icon: (
             <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
         )},
-        { label: 'Avg. Order Value', value: 'PHP 18.5k', growth: '+5.4%', link: 'reports.index', icon: (
+        { label: 'Avg. Order Value', value: formatCurrency(serverStats.avgOrderValue), growth: '+5.4%', link: 'reports.index', icon: (
             <span className="text-lg font-black text-amber-500 leading-none">₱</span>
         )},
-    ];
-
-    const recentActivity = [
-        { id: 1, type: 'Invoice', user: 'Marcin Pascua', action: 'created Invoice #11792', time: '2 mins ago' },
-        { id: 2, type: 'Stock', user: 'Marcin Pascua', action: 'updated iPhone 15 Pro stock (+24 units)', time: '15 mins ago' },
-        { id: 3, type: 'Inventory', user: 'Marcin Pascua', action: 'modified unit cost for MacBook Pro 14"', time: '1 hour ago' },
-        { id: 4, type: 'Report', user: 'Marcin Pascua', action: 'generated Monthly Sales Report', time: '3 hours ago' },
-    ];
-
-    const topProducts = [
-        { name: 'iPhone 15 Pro', sales: 156, growth: '+12%' },
-        { name: 'AirPods Pro 2', sales: 289, growth: '+24%' },
-        { name: 'MacBook Pro 14"', sales: 42, growth: '+5%' },
     ];
 
     return (
@@ -101,37 +97,24 @@ export default function Dashboard() {
                         </div>
                         <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
                             <div className="divide-y divide-gray-50">
-                                {recentActivity.map((activity) => {
-                                    const getRoute = () => {
-                                        switch(activity.type) {
-                                            case 'Invoice':
-                                            case 'Payment': return 'invoices.index';
-                                            case 'Stock': 
-                                            case 'Inventory': return 'inventory.index';
-                                            case 'Report': return 'reports.index';
-                                            default: return 'dashboard';
-                                        }
-                                    };
-
-                                    return (
-                                        <Link 
-                                            key={activity.id} 
-                                            href={route(getRoute())}
-                                            className="p-6 hover:bg-gray-50/50 transition-colors flex items-center justify-between group"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-black transition-colors"></div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-700">
-                                                        <span className="font-bold text-black">{activity.user}</span> {activity.action}
-                                                    </p>
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{activity.time} • {activity.type}</p>
-                                                </div>
+                                {recentInvoices.map((inv) => (
+                                    <Link 
+                                        key={inv.id} 
+                                        href={route('invoices.index')}
+                                        className="p-6 hover:bg-gray-50/50 transition-colors flex items-center justify-between group"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-2 h-2 rounded-full bg-blue-500 group-hover:bg-black transition-colors"></div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-700">
+                                                    <span className="font-bold text-black">New Invoice</span> #{inv.invoice_number} created for {inv.customer_name}
+                                                </p>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{formatDate(inv.date)} • {formatCurrency(inv.amount)}</p>
                                             </div>
-                                            <svg className="w-4 h-4 text-gray-300 group-hover:text-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
-                                        </Link>
-                                    );
-                                })}
+                                        </div>
+                                        <svg className="w-4 h-4 text-gray-300 group-hover:text-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                                    </Link>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -145,11 +128,11 @@ export default function Dashboard() {
                                 <div className="space-y-6">
                                     {topProducts.map((product, idx) => (
                                         <div key={idx} className="flex items-center justify-between border-b border-white/10 pb-4 last:border-0 last:pb-0">
-                                            <div>
-                                                <p className="font-bold text-white leading-none mb-1">{product.name}</p>
-                                                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">{product.sales} Sales</p>
+                                            <div className="max-w-[70%]">
+                                                <p className="font-bold text-white leading-none mb-1 truncate">{product.description}</p>
+                                                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">{product.total_sold} units sold</p>
                                             </div>
-                                            <span className="text-xs font-black text-emerald-400">{product.growth}</span>
+                                            <span className="text-xs font-black text-emerald-400">Top Sale</span>
                                         </div>
                                     ))}
                                 </div>

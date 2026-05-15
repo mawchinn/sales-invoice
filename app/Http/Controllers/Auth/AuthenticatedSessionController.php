@@ -33,6 +33,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if ($request->user()->role === 'cashier') {
+            return redirect()->route('invoices.index');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

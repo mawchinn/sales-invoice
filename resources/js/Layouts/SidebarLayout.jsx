@@ -3,24 +3,17 @@ import { Link, usePage, router } from '@inertiajs/react';
 import React, { useState } from 'react';
 
 export default function SidebarLayout({ children }) {
-    const user = usePage().props.auth.user;
+    const { props } = usePage();
+    const user = props.auth?.user;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [globalSearch, setGlobalSearch] = useState('');
+
     const [notifications, setNotifications] = useState([
         { id: 1, title: 'New Invoice Created', description: 'Invoice #11792 for WHOLESALE INC', time: '2 mins ago', type: 'info' },
         { id: 2, title: 'Payment Received', description: 'Payment for Invoice #11784 received', time: '1 hour ago', type: 'success' },
         { id: 3, title: 'Invoice Overdue', description: 'Invoice #11787 is now 3 days overdue', time: '5 hours ago', type: 'warning' },
     ]);
 
-    const handleGlobalSearch = (e) => {
-        e.preventDefault();
-        if (globalSearch.trim()) {
-            router.get(route('invoices.index'), { search: globalSearch }, {
-                preserveState: true,
-                replace: true
-            });
-        }
-    };
+
 
     return (
         <div className="flex h-screen bg-[#f8f9fa] text-gray-900 font-sans selection:bg-black selection:text-white">
@@ -35,13 +28,15 @@ export default function SidebarLayout({ children }) {
 
                 {/* Navigation Links */}
                 <nav className="flex-1 px-4 py-6 overflow-y-auto space-y-1.5">
-                    <Link 
-                        href={route('dashboard')} 
-                        className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${route().current('dashboard') ? 'bg-black text-white shadow-md shadow-gray-300/50' : 'text-gray-500 hover:bg-gray-50 hover:text-black'}`}
-                    >
-                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                        <span className="tracking-wide">Dashboard</span>
-                    </Link>
+                    {user?.role === 'admin' && (
+                        <Link 
+                            href={route('dashboard')} 
+                            className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${route().current('dashboard') ? 'bg-black text-white shadow-md shadow-gray-300/50' : 'text-gray-500 hover:bg-gray-50 hover:text-black'}`}
+                        >
+                            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                            <span className="tracking-wide">Dashboard</span>
+                        </Link>
+                    )}
 
 
                     <Link 
@@ -52,21 +47,25 @@ export default function SidebarLayout({ children }) {
                         <span className="tracking-wide">Invoices</span>
                     </Link>
 
-                    <Link 
-                        href={route('inventory.index')} 
-                        className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${route().current('inventory.*') ? 'bg-black text-white shadow-md shadow-gray-300/50' : 'text-gray-500 hover:bg-gray-50 hover:text-black'}`}
-                    >
-                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                        <span className="tracking-wide">Inventory</span>
-                    </Link>
+                    {user?.role === 'admin' && (
+                        <>
+                            <Link 
+                                href={route('inventory.index')} 
+                                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${route().current('inventory.*') ? 'bg-black text-white shadow-md shadow-gray-300/50' : 'text-gray-500 hover:bg-gray-50 hover:text-black'}`}
+                            >
+                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                                <span className="tracking-wide">Inventory</span>
+                            </Link>
 
-                    <Link 
-                        href={route('reports.index')} 
-                        className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${route().current('reports.*') ? 'bg-black text-white shadow-md shadow-gray-300/50' : 'text-gray-500 hover:bg-gray-50 hover:text-black'}`}
-                    >
-                        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        <span className="tracking-wide">Reports</span>
-                    </Link>
+                            <Link 
+                                href={route('reports.index')} 
+                                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${route().current('reports.*') ? 'bg-black text-white shadow-md shadow-gray-300/50' : 'text-gray-500 hover:bg-gray-50 hover:text-black'}`}
+                            >
+                                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                <span className="tracking-wide">Reports</span>
+                            </Link>
+                        </>
+                    )}
                 </nav>
 
                 <div className="p-4 shrink-0 border-t border-gray-50">
@@ -97,18 +96,7 @@ export default function SidebarLayout({ children }) {
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
                         </button>
                         
-                        <form onSubmit={handleGlobalSearch} className="hidden md:flex relative w-full max-w-md group">
-                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-black transition-colors">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            </div>
-                            <input 
-                                type="text" 
-                                placeholder="Search for anything..." 
-                                value={globalSearch}
-                                onChange={(e) => setGlobalSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-black/5 focus:border-black/20 text-sm transition-all duration-200 placeholder-gray-400 font-medium" 
-                            />
-                        </form>
+
                     </div>
 
                     <div className="flex items-center gap-4 lg:gap-6">
@@ -119,7 +107,7 @@ export default function SidebarLayout({ children }) {
                         >
                             <div className="hidden lg:block text-right">
                                 <p className="text-[13px] font-bold text-gray-900 leading-none mb-1 group-hover:text-black transition-colors">{user?.name || 'User'}</p>
-                                <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">Administrator</p>
+                                <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">{user?.role || 'User'}</p>
                             </div>
                             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 group-hover:border-black/10 group-hover:shadow-sm transition-all shrink-0 overflow-hidden">
                                 <span className="text-gray-600 font-bold text-sm tracking-wider group-hover:text-black transition-colors">{user?.name?.charAt(0) || 'U'}</span>

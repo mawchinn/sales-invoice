@@ -2,29 +2,31 @@ import CreateProductModal from '@/Components/CreateProductModal';
 import ProductViewModal from '@/Components/ProductViewModal';
 import Dropdown from '@/Components/Dropdown';
 import SidebarLayout from '@/Layouts/SidebarLayout';
-import { Head } from '@inertiajs/react';
-import React, { useState, useMemo } from 'react';
+import { Head, router } from '@inertiajs/react';
+import React, { useState, useMemo, useEffect } from 'react';
 
-export default function InventoryIndex() {
+export default function InventoryIndex({ products: serverProducts = [] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [viewingProduct, setViewingProduct] = useState(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const initialInventory = [
-        { id: 1, name: 'iPhone 15 Pro', code: 'IP15-PRO', onHand: 24, sold: 156, unitCost: 'PHP 70,990.00', sales: 'PHP 11,074,440.00', category: 'Phones', reorderPoint: 10, description: 'Apple iPhone 15 Pro with 256GB storage, Natural Titanium.' },
-        { id: 2, name: 'MacBook Pro 14"', code: 'MBP-M3', onHand: 12, sold: 42, unitCost: 'PHP 104,990.00', sales: 'PHP 4,409,580.00', category: 'Laptops', reorderPoint: 10, description: '14-inch MacBook Pro with M3 Chip, 8GB RAM, 512GB SSD.' },
-        { id: 3, name: 'AirPods Pro 2', code: 'AIRPODS-P2', onHand: 45, sold: 289, unitCost: 'PHP 14,990.00', sales: 'PHP 4,332,110.00', category: 'Accessories', reorderPoint: 10, description: 'AirPods Pro (2nd Generation) with MagSafe Charging Case (USB-C).' },
-        { id: 4, name: 'iPad Air 5', code: 'IPAD-AIR5', onHand: 18, sold: 67, unitCost: 'PHP 35,990.00', sales: 'PHP 2,411,330.00', category: 'Tablets', reorderPoint: 10, description: 'iPad Air (5th Generation) Wi-Fi 64GB storage, Blue color.' },
-        { id: 5, name: 'Apple Watch S9', code: 'WATCH-S9', onHand: 31, sold: 94, unitCost: 'PHP 26,490.00', sales: 'PHP 2,490,060.00', category: 'Wearables', reorderPoint: 10, description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum Case with Sport Band.' },
-    ];
+    
+    const formatCurrency = (amount) => {
+        return `PHP ${parseFloat(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
 
-    const [inventory, setInventory] = useState(initialInventory);
-    const [categoryFilter, setCategoryFilter] = useState('All Categories');
+    const [inventory, setInventory] = useState(serverProducts);
+
+    // Sync with server data
+    useEffect(() => {
+        setInventory(serverProducts);
+    }, [serverProducts]);
+    const [typeFilter, setTypeFilter] = useState('All Types');
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleDeleteProduct = (id) => {
         if (confirm('Are you sure you want to delete this product?')) {
-            setInventory(prev => prev.filter(item => item.id !== id));
+            router.delete(route('inventory.destroy', id));
         }
     };
 
@@ -32,13 +34,13 @@ export default function InventoryIndex() {
         // Simple CSV generation
         const headers = ['Product', 'Code', 'Category', 'Sold', 'On-Hand', 'Unit Cost', 'Total Sales'];
         const rows = inventory.map(item => [
-            item.name,
-            item.code,
-            item.category,
-            item.sold,
-            item.onHand,
-            item.unitCost ? item.unitCost.replace(/,/g, '') : 'PHP 0.00',
-            item.sales.replace(/,/g, '') // Remove commas for CSV
+            item.description,
+            item.sku,
+            item.product_type || 'General',
+            0, // Sold
+            item.stock_quantity,
+            item.cost,
+            item.cost * item.stock_quantity // Total Value
         ]);
         
         const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
@@ -56,21 +58,17 @@ export default function InventoryIndex() {
 
     const filteredInventory = useMemo(() => {
         return inventory.filter(item => {
-            const matchesCategory = categoryFilter === 'All Categories' || item.category === categoryFilter;
-            const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                 item.code.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesCategory && matchesSearch;
+            const matchesType = typeFilter === 'All Types' || item.product_type === typeFilter;
+            const matchesSearch = (item.description?.toLowerCase() || '').includes(searchQuery.toLowerCase()) || 
+                                 (item.sku?.toLowerCase() || '').includes(searchQuery.toLowerCase());
+            return matchesType && matchesSearch;
         });
-    }, [inventory, categoryFilter, searchQuery]);
+    }, [inventory, typeFilter, searchQuery]);
 
     const stats = useMemo(() => {
-        const totalSold = filteredInventory.reduce((acc, item) => acc + (item.sold || 0), 0);
-        const totalOnHand = filteredInventory.reduce((acc, item) => acc + (item.onHand || 0), 0);
-        const totalSales = filteredInventory.reduce((acc, item) => {
-            const salesStr = item.sales || 'PHP 0.00';
-            const val = parseFloat(salesStr.replace(/[^0-9.]/g, '')) || 0;
-            return acc + val;
-        }, 0);
+        const totalSold = 0; // Needs items relationship
+        const totalOnHand = filteredInventory.reduce((acc, item) => acc + (item.stock_quantity || 0), 0);
+        const totalSales = 0; // Needs items relationship
 
         return [
             { label: 'Total Sold', value: `${totalSold.toLocaleString()} Units`, icon: (
@@ -79,7 +77,7 @@ export default function InventoryIndex() {
             { label: 'On-Hand Stock', value: `${totalOnHand.toLocaleString()} Units`, icon: (
                 <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
             )},
-            { label: 'Total Sales', value: `PHP ${(totalSales / 1000000).toFixed(1)}M`, icon: (
+            { label: 'Inventory Value', value: formatCurrency(filteredInventory.reduce((acc, item) => acc + (item.cost * item.stock_quantity), 0)), icon: (
                 <span className="text-lg font-black text-amber-500 leading-none">₱</span>
             )},
         ];
@@ -152,19 +150,19 @@ export default function InventoryIndex() {
                                 <button className="flex items-center justify-between gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm min-w-[160px]">
                                     <div className="flex items-center gap-2">
                                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-                                        {categoryFilter}
+                                        {typeFilter}
                                     </div>
                                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                                 </button>
                             </Dropdown.Trigger>
                             <Dropdown.Content align="left" width="48" contentClasses="py-2 bg-white shadow-xl border border-gray-100 rounded-xl">
-                                {['All Categories', 'Phones', 'Laptops', 'Accessories', 'Tablets', 'Wearables'].map((cat) => (
+                                {['All Types', 'Phones', 'Laptops', 'Accessories', 'Tablets', 'Wearables'].map((type) => (
                                     <button
-                                        key={cat}
-                                        onClick={() => setCategoryFilter(cat)}
-                                        className={`block w-full px-4 py-2.5 text-start text-sm font-bold transition-colors ${categoryFilter === cat ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'}`}
+                                        key={type}
+                                        onClick={() => setTypeFilter(type)}
+                                        className={`block w-full px-4 py-2.5 text-start text-sm font-bold transition-colors ${typeFilter === type ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-50'}`}
                                     >
-                                        {cat}
+                                        {type}
                                     </button>
                                 ))}
                             </Dropdown.Content>
@@ -178,12 +176,13 @@ export default function InventoryIndex() {
                         <table className="w-full table-fixed text-left text-sm">
                             <thead>
                                 <tr className="border-b border-gray-100 bg-white">
-                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[22%]">Product</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[15%]">Sold</th>
+                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[20%]">Product</th>
+                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[15%]">Product Type</th>
+                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[10%]">Sold</th>
                                     <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[15%]">On-Hand</th>
-                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[18%]">Total Sales</th>
+                                    <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[15%]">Unit Cost</th>
                                     <th className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 w-[15%]">Status</th>
-                                    <th className="px-6 py-5 w-[15%] text-right"></th>
+                                    <th className="px-6 py-5 w-[10%] text-right"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -191,30 +190,35 @@ export default function InventoryIndex() {
                                     <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer border-b border-gray-50 last:border-0">
                                         <td className="px-6 py-5">
                                             <div className="flex flex-col">
-                                                <span className="font-bold text-gray-900 group-hover:text-black transition-colors">{item.name}</span>
-                                                <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-tighter mt-0.5">{item.code} • {item.category}</span>
+                                                <span className="font-bold text-gray-900 group-hover:text-black transition-colors line-clamp-1">{item.description}</span>
+                                                <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-tighter mt-0.5">{item.sku}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5 text-left">
-                                            <span className="font-bold text-gray-700">{item.sold}</span>
+                                        <td className="px-6 py-5">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold bg-gray-100 text-gray-700 uppercase tracking-wider">
+                                                {item.product_type || 'General'}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-5 text-left">
-                                            <span className={`font-black ${item.onHand < 15 ? 'text-red-600' : item.onHand < 25 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                                                {item.onHand}
+                                            <span className="font-bold text-gray-700">0</span>
+                                        </td>
+                                        <td className="px-6 py-5 text-left">
+                                            <span className={`font-black ${item.stock_quantity < 10 ? 'text-red-600' : item.stock_quantity < 20 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                                {item.stock_quantity}
                                             </span>
                                         </td>
 
                                         <td className="px-6 py-5 font-black text-gray-900">
-                                            {item.sales}
+                                            {formatCurrency(item.cost)}
                                         </td>
                                         <td className="px-6 py-5">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                                item.onHand <= (item.reorderPoint / 2) ? 'bg-red-50 text-red-700' : 
-                                                item.onHand <= item.reorderPoint ? 'bg-amber-50 text-amber-700' : 
+                                                item.stock_quantity <= 5 ? 'bg-red-50 text-red-700' : 
+                                                item.stock_quantity <= 15 ? 'bg-amber-50 text-amber-700' : 
                                                 'bg-emerald-50 text-emerald-700'
                                             }`}>
-                                                {item.onHand <= (item.reorderPoint / 2) ? 'Critical' : 
-                                                 item.onHand <= item.reorderPoint ? 'Low Stock' : 
+                                                {item.stock_quantity <= 5 ? 'Critical' : 
+                                                 item.stock_quantity <= 15 ? 'Low Stock' : 
                                                  'In Stock'}
                                             </span>
                                         </td>
@@ -269,13 +273,17 @@ export default function InventoryIndex() {
                 }}
                 productToEdit={editingProduct}
                 onCreate={(newProduct) => {
-                    setInventory(prev => [newProduct, ...prev]);
-                    setIsModalOpen(false);
+                    router.post(route('inventory.store'), newProduct, {
+                        onSuccess: () => setIsModalOpen(false)
+                    });
                 }}
                 onUpdate={(updatedProduct) => {
-                    setInventory(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
-                    setIsModalOpen(false);
-                    setEditingProduct(null);
+                    router.patch(route('inventory.update', updatedProduct.id), updatedProduct, {
+                        onSuccess: () => {
+                            setIsModalOpen(false);
+                            setEditingProduct(null);
+                        }
+                    });
                 }}
             />
             <ProductViewModal 

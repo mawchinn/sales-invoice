@@ -1,29 +1,19 @@
 import { Head, Link } from '@inertiajs/react';
 import React, { useState } from 'react';
 import LoginModal from '@/Components/LoginModal';
-import RegisterModal from '@/Components/RegisterModal';
 import ForgotPasswordModal from '@/Components/ForgotPasswordModal';
 
-export default function Home({ auth }) {
+export default function Home({ auth = { user: null } }) {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-    const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
     const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
 
     const openLogin = () => {
-        setIsRegisterModalOpen(false);
         setIsForgotPasswordModalOpen(false);
         setIsLoginModalOpen(true);
     };
 
-    const openRegister = () => {
-        setIsLoginModalOpen(false);
-        setIsForgotPasswordModalOpen(false);
-        setIsRegisterModalOpen(true);
-    };
-
     const openForgotPassword = () => {
         setIsLoginModalOpen(false);
-        setIsRegisterModalOpen(false);
         setIsForgotPasswordModalOpen(true);
     };
     const categories = [
@@ -73,28 +63,25 @@ export default function Home({ auth }) {
                 </div>
 
                 <nav className="flex items-center gap-8 text-sm font-semibold">
-                    {!auth.user && (
-                        <>
-                            <Link 
-                                href="/"
-                                className="text-black transition-colors uppercase tracking-widest text-[11px] font-black border-b-2 border-black pb-1"
-                            >
-                                Home
-                            </Link>
-                            <Link 
-                                href={route('about')}
-                                className="text-gray-500 hover:text-black transition-colors uppercase tracking-widest text-[11px] font-black pb-1"
-                            >
-                                About
-                            </Link>
-                        </>
-                    )}
+                    <Link 
+                        href="/"
+                        className="text-black transition-colors uppercase tracking-widest text-[11px] font-black border-b-2 border-black pb-1"
+                    >
+                        Home
+                    </Link>
+                    <Link 
+                        href={route('about')}
+                        className="text-gray-500 hover:text-black transition-colors uppercase tracking-widest text-[11px] font-black pb-1"
+                    >
+                        About
+                    </Link>
+
                     {auth.user ? (
                         <Link 
-                            href={route('dashboard')} 
+                            href={auth.user.role === 'cashier' ? route('invoices.index') : route('dashboard')} 
                             className="px-6 py-2.5 bg-black text-white rounded-full hover:bg-gray-800 transition-colors tracking-wide"
                         >
-                            Dashboard
+                            {auth.user.role === 'cashier' ? 'Invoices' : 'Dashboard'}
                         </Link>
                     ) : (
                         <button 
@@ -110,14 +97,7 @@ export default function Home({ auth }) {
             <LoginModal 
                 isOpen={isLoginModalOpen} 
                 onClose={() => setIsLoginModalOpen(false)} 
-                onSwitchToRegister={openRegister}
                 onSwitchToForgotPassword={openForgotPassword}
-            />
-
-            <RegisterModal
-                isOpen={isRegisterModalOpen}
-                onClose={() => setIsRegisterModalOpen(false)}
-                onSwitchToLogin={openLogin}
             />
 
             <ForgotPasswordModal

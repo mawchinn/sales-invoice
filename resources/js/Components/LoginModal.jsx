@@ -36,7 +36,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSwit
                     <div className="flex justify-between items-start mb-8">
                         <div>
                             <h2 className="text-3xl font-black text-gray-900 tracking-tight">Welcome Back</h2>
-                            <p className="text-sm font-medium text-gray-500 mt-2">Log in to manage your business.</p>
+                            <p className="text-sm font-medium text-gray-500 mt-2">Log in to manage system.</p>
                         </div>
                         <button 
                             onClick={onClose}
@@ -111,11 +111,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister, onSwit
                         </div>
                     </form>
 
-                    <div className="mt-8 pt-8 border-t border-gray-100 text-center">
-                        <p className="text-sm font-medium text-gray-500">
-                            Don't have an account? <button onClick={onSwitchToRegister} className="text-black font-bold hover:underline">Sign up</button>
-                        </p>
-                    </div>
+
                 </div>
             </div>
         </div>

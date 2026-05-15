@@ -28,15 +28,15 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
             }
 
             return {
-                invoiceNumber: invoice.invoiceNumber,
-                name: invoice.customerName,
-                address: invoice.address || '', // Might be missing in mock
+                invoiceNumber: invoice.invoice_number,
+                name: invoice.customer_name,
+                address: invoice.address || '', 
                 contact: invoice.contact || '',
                 tin: invoice.tin || '',
                 date: formattedDate,
-                salesPerson: invoice.salesPerson,
+                salesPerson: invoice.sales_person,
                 cashier: invoice.cashier,
-                paymentMethod: 'CASH'
+                paymentMethod: invoice.status || 'CASH'
             };
         }
         return {
@@ -115,7 +115,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
         const newErrors = {};
         if (!customerData.invoiceNumber.trim()) newErrors.invoiceNumber = 'Invoice number is required';
         if (!customerData.name.trim()) newErrors.name = 'Customer name is required';
-        if (!customerData.address.trim()) newErrors.address = 'Shipping address is required';
+        if (!customerData.address.trim()) newErrors.address = 'Home address is required';
         if (!customerData.date) newErrors.date = 'Invoice date is required';
         if (!customerData.salesPerson.trim()) newErrors.salesPerson = 'Sales person is required';
         if (!customerData.cashier.trim()) newErrors.cashier = 'Cashier name is required';
@@ -235,7 +235,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                                     {errors.name && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.name}</p>}
                                 </div>
                                 <div>
-                                    <label className={labelClasses}>Shipping Address</label>
+                                    <label className={labelClasses}>Home Address</label>
                                     <input 
                                         type="text" 
                                         className={`${inputClasses} ${errors.address ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
@@ -434,6 +434,18 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                                         </button>
                                     </div>
                                 ))}
+                            </div>
+                        </div>
+
+                        {/* Invoice Breakdown */}
+                        <div className="mt-8 pt-8 border-t border-gray-50 flex flex-col items-start space-y-4">
+                            <div className="flex justify-between w-72 text-sm font-bold text-gray-400 uppercase tracking-widest">
+                                <span>Subtotal (VAT Excl.)</span>
+                                <span className="text-gray-900 font-black">PHP {(calculateTotal() / 1.12).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className="flex justify-between w-72 text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-4">
+                                <span>VAT (12%)</span>
+                                <span className="text-gray-900 font-black">PHP {(calculateTotal() - (calculateTotal() / 1.12)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                         </div>
 

@@ -33,7 +33,7 @@ export default function InvoiceTemplate({ invoice }) {
                     <h1 className="font-serif font-bold text-2xl tracking-widest mb-1">SALES INVOICE</h1>
                     <div className="flex justify-end items-center gap-2 mb-2">
                         <span className="font-serif font-bold text-lg">No.</span>
-                        <span className="font-serif text-red-600 font-bold text-xl">{invoice.invoiceNumber}</span>
+                        <span className="font-serif text-red-600 font-bold text-xl">{invoice.invoice_number}</span>
                     </div>
                     <div className="flex justify-end items-baseline gap-1">
                         <span>DATE:</span>
@@ -48,7 +48,7 @@ export default function InvoiceTemplate({ invoice }) {
                 <div className="flex border-b border-black">
                     <div className="w-[30%] border-r border-black p-1 pb-4">
                         <div>Sold to:</div>
-                        <div className="text-gray-500 uppercase mt-1 px-4">{invoice.customerName}</div>
+                        <div className="text-gray-500 uppercase mt-1 px-4">{invoice.customer_name}</div>
                     </div>
                     <div className="w-[35%] border-r border-black p-1 pb-4">
                         <div>Shipping Address:</div>
@@ -62,7 +62,7 @@ export default function InvoiceTemplate({ invoice }) {
                         <div>PO:</div>
                         <div className="absolute bottom-1 left-1 text-[10px] text-gray-500 flex flex-col gap-0.5">
                             <div>Cashier <span className="ml-2">: {invoice.cashier || 'MMPONCE'}</span></div>
-                            <div>Sales Person <span className="ml-1">: {invoice.salesPerson || 'LBSARINO'}</span></div>
+                            <div>Sales Person <span className="ml-1">: {invoice.sales_person || 'LBSARINO'}</span></div>
                         </div>
                     </div>
                 </div>

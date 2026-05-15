@@ -6,7 +6,7 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
     const [productData, setProductData] = useState({
         name: '',
         code: '',
-        category: 'Phones',
+        product_type: 'Phones',
         description: '',
         price: '',
         stock: ''
@@ -16,19 +16,20 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
 
     useEffect(() => {
         if (productToEdit) {
+            const descriptionParts = (productToEdit.description || '').split(' - ');
             setProductData({
-                name: productToEdit.name || '',
-                code: productToEdit.code || '',
-                category: productToEdit.category || 'Phones',
-                description: productToEdit.description || '',
-                price: productToEdit.unitCost ? parseFloat(productToEdit.unitCost.replace(/[^0-9.]/g, '')) : '',
-                stock: productToEdit.onHand || ''
+                name: descriptionParts[0] || '',
+                code: productToEdit.sku || '',
+                product_type: productToEdit.product_type || 'Phones',
+                description: descriptionParts.slice(1).join(' - ') || '',
+                price: productToEdit.cost || '',
+                stock: productToEdit.stock_quantity || ''
             });
         } else {
             setProductData({
                 name: '',
                 code: '',
-                category: 'Phones',
+                product_type: 'Phones',
                 description: '',
                 price: '',
                 stock: ''
@@ -55,22 +56,20 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
         if (productToEdit && onUpdate) {
             onUpdate({
                 ...productToEdit,
-                name: productData.name,
-                code: productData.code,
-                category: productData.category,
-                description: productData.description,
-                unitCost: `PHP ${parseFloat(productData.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                onHand: parseInt(productData.stock) || 0,
+                description: productData.name + (productData.description ? ` - ${productData.description}` : ''),
+                sku: productData.code,
+                product_type: productData.product_type,
+                cost: parseFloat(productData.price) || 0,
+                stock_quantity: parseInt(productData.stock) || 0,
             });
         } else if (onCreate) {
             const newProduct = {
                 id: Date.now(),
-                name: productData.name,
-                code: productData.code,
-                category: productData.category,
-                description: productData.description,
-                unitCost: `PHP ${parseFloat(productData.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                onHand: parseInt(productData.stock) || 0,
+                description: productData.name + (productData.description ? ` - ${productData.description}` : ''),
+                sku: productData.code,
+                product_type: productData.product_type,
+                cost: parseFloat(productData.price) || 0,
+                stock_quantity: parseInt(productData.stock) || 0,
                 reorderPoint: 10,
                 sold: 0,
                 sales: 'PHP 0.00'
@@ -139,11 +138,11 @@ export default function CreateProductModal({ isOpen, onClose, onCreate, onUpdate
                                     {errors.code && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.code}</p>}
                                 </div>
                                 <div>
-                                    <label className={labelClasses}>Category</label>
+                                    <label className={labelClasses}>Product Type</label>
                                     <select 
                                         className={`${inputClasses} appearance-none cursor-pointer`}
-                                        value={productData.category}
-                                        onChange={(e) => setProductData({...productData, category: e.target.value})}
+                                        value={productData.product_type}
+                                        onChange={(e) => setProductData({...productData, product_type: e.target.value})}
                                     >
                                         <option>Phones</option>
                                         <option>Laptops</option>

@@ -3,6 +3,10 @@ import React from 'react';
 export default function ProductViewModal({ isOpen, onClose, product }) {
     if (!isOpen || !product) return null;
 
+    const formatCurrency = (amount) => {
+        return `PHP ${parseFloat(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
+
     const labelClasses = "text-[11px] font-bold tracking-widest text-gray-400 uppercase mb-1.5 block";
 
     return (
@@ -30,7 +34,7 @@ export default function ProductViewModal({ isOpen, onClose, product }) {
                         <div className="col-span-2">
                             <label className={labelClasses}>Product Name</label>
                             <div className="text-2xl font-black text-gray-900">
-                                {product.name}
+                                {product.description}
                             </div>
                         </div>
                         
@@ -38,15 +42,15 @@ export default function ProductViewModal({ isOpen, onClose, product }) {
                             <label className={labelClasses}>SKU / Code</label>
                             <div className="text-sm font-bold text-gray-900 bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-100 flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                                {product.code}
+                                {product.sku}
                             </div>
                         </div>
                         
                         <div>
-                            <label className={labelClasses}>Category</label>
+                            <label className={labelClasses}>Product Type</label>
                             <div className="text-sm font-bold text-gray-900 bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-100 flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                                {product.category}
+                                {product.product_type}
                             </div>
                         </div>
                     </div>
@@ -55,15 +59,15 @@ export default function ProductViewModal({ isOpen, onClose, product }) {
                     <div className="grid grid-cols-2 gap-6">
                         <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">On-Hand Stock</label>
-                            <div className="text-2xl font-black text-gray-900">{product.onHand} <span className="text-[11px] text-gray-400 font-bold ml-1 uppercase">Units</span></div>
+                            <div className="text-2xl font-black text-gray-900">{product.stock_quantity} <span className="text-[11px] text-gray-400 font-bold ml-1 uppercase">Units</span></div>
                         </div>
                         <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
                             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Total Sold</label>
-                            <div className="text-2xl font-black text-gray-900">{product.sold} <span className="text-[11px] text-emerald-500 font-bold ml-1 uppercase">Sold</span></div>
+                            <div className="text-2xl font-black text-gray-900">0 <span className="text-[11px] text-emerald-500 font-bold ml-1 uppercase">Sold</span></div>
                         </div>
                         <div className="col-span-2 p-6 bg-emerald-50/30 rounded-2xl border border-emerald-100/50">
                             <label className="text-[10px] font-bold text-emerald-600/70 uppercase tracking-widest mb-1 block">Unit Cost (VAT Inclusive)</label>
-                            <div className="text-3xl font-black text-emerald-600 tracking-tight">{product.unitCost}</div>
+                            <div className="text-3xl font-black text-emerald-600 tracking-tight">{formatCurrency(product.cost)}</div>
                         </div>
                     </div>
 

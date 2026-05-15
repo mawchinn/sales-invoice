@@ -18,19 +18,22 @@ Route::get('/about', function () {
     return Inertia::render('About');
 })->name('about');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+use App\Http\Controllers\DashboardController;
 
-Route::get('/invoices', function () {
-    return Inertia::render('Invoices/Index');
-})->middleware(['auth', 'verified'])->name('invoices.index');
-Route::get('/inventory', function () {
-    return Inertia::render('Inventory/Index');
-})->middleware(['auth', 'verified'])->name('inventory.index');
-Route::get('/reports', function () {
-    return Inertia::render('Reports/Index');
-})->middleware(['auth', 'verified'])->name('reports.index');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+
+use App\Http\Controllers\InvoiceController;
+
+Route::get('/invoices', [InvoiceController::class, 'index'])->middleware(['auth'])->name('invoices.index');
+use App\Http\Controllers\ProductController;
+
+Route::get('/inventory', [ProductController::class, 'index'])->middleware(['auth'])->name('inventory.index');
+Route::post('/inventory', [ProductController::class, 'store'])->middleware(['auth'])->name('inventory.store');
+Route::patch('/inventory/{product}', [ProductController::class, 'update'])->middleware(['auth'])->name('inventory.update');
+Route::delete('/inventory/{product}', [ProductController::class, 'destroy'])->middleware(['auth'])->name('inventory.destroy');
+use App\Http\Controllers\ReportController;
+
+Route::get('/reports', [ReportController::class, 'index'])->middleware(['auth'])->name('reports.index');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
