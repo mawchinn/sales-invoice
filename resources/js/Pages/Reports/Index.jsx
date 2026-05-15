@@ -18,18 +18,18 @@ export default function ReportsIndex() {
 
     const reportsData = {
         'Sales Summary': {
-            headers: ['Date', 'Invoice', 'Customer', 'Amount', 'Status'],
+            headers: ['Date', 'Invoice', 'Customer', 'Amount', 'Payment Method'],
             data: [
-                { id: 1, col1: '2026-05-15', col2: '#11793', col3: 'MARIA LEONOR', col4: 12500.00, col5: 'PAID' },
-                { id: 2, col1: '2026-05-14', col2: '#11792', col3: 'ANTONIO LUNA', col4: 235062.00, col5: 'OPEN' },
-                { id: 3, col1: '2026-05-10', col2: '#11791', col3: 'ISABELLA GARCIA', col4: 423895.00, col5: 'PENDING' },
-                { id: 4, col1: '2026-04-28', col2: '#11790', col3: 'GABRIEL REYES', col4: 319174.00, col5: 'PAID' },
-                { id: 5, col1: '2026-04-15', col2: '#11789', col3: 'SOPHIA CHUA', col4: 218729.00, col5: 'DRAFT' },
-                { id: 6, col1: '2026-03-22', col2: '#11788', col3: 'RICARDO PASCUAL', col4: 88500.00, col5: 'PAID' },
-                { id: 7, col1: '2026-03-05', col2: '#11787', col3: 'ELENA SANTOS', col4: 156000.00, col5: 'PARTIALLY PAID' },
-                { id: 8, col1: '2026-02-18', col2: '#11786', col3: 'RAFAEL MENDEZ', col4: 45200.00, col5: 'PAID' },
-                { id: 9, col1: '2026-02-10', col2: '#11785', col3: 'ANTONIO LUNA', col4: 92000.00, col5: 'OPEN' },
-                { id: 10, col1: '2026-01-25', col2: '#11784', col3: 'MARIA LEONOR', col4: 120500.00, col5: 'PAID' },
+                { id: 1, col1: '2026-05-15', col2: '#11793', col3: 'MARIA LEONOR', col4: 12500.00, col5: 'CASH' },
+                { id: 2, col1: '2026-05-14', col2: '#11792', col3: 'ANTONIO LUNA', col4: 235062.00, col5: 'INSTALLMENT' },
+                { id: 3, col1: '2026-05-10', col2: '#11791', col3: 'ISABELLA GARCIA', col4: 423895.00, col5: 'CASH' },
+                { id: 4, col1: '2026-04-28', col2: '#11790', col3: 'GABRIEL REYES', col4: 319174.00, col5: 'INSTALLMENT' },
+                { id: 5, col1: '2026-04-15', col2: '#11789', col3: 'SOPHIA CHUA', col4: 218729.00, col5: 'CASH' },
+                { id: 6, col1: '2026-03-22', col2: '#11788', col3: 'RICARDO PASCUAL', col4: 88500.00, col5: 'CASH' },
+                { id: 7, col1: '2026-03-05', col2: '#11787', col3: 'ELENA SANTOS', col4: 156000.00, col5: 'INSTALLMENT' },
+                { id: 8, col1: '2026-02-18', col2: '#11786', col3: 'RAFAEL MENDEZ', col4: 45200.00, col5: 'CASH' },
+                { id: 9, col1: '2026-02-10', col2: '#11785', col3: 'ANTONIO LUNA', col4: 92000.00, col5: 'INSTALLMENT' },
+                { id: 10, col1: '2026-01-25', col2: '#11784', col3: 'MARIA LEONOR', col4: 120500.00, col5: 'CASH' },
             ]
         },
         'Inventory Valuation': {
@@ -267,10 +267,7 @@ export default function ReportsIndex() {
                                             <span className="font-black text-gray-900">PHP {item.col5.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                         ) : (
                                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                                                item.col5 === 'PAID' ? 'bg-emerald-50 text-emerald-700' : 
-                                                item.col5 === 'OPEN' ? 'bg-blue-50 text-blue-700' : 
-                                                item.col5 === 'DRAFT' ? 'bg-gray-100 text-gray-500' :
-                                                'bg-amber-50 text-amber-700'
+                                                item.col5 === 'CASH' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
                                             }`}>
                                                 {item.col5}
                                             </span>

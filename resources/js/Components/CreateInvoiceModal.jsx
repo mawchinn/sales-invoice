@@ -9,7 +9,7 @@ const predefinedItems = [
     { code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 24990.00 },
 ];
 
-export default function CreateInvoiceModal({ isOpen, onClose }) {
+export default function CreateInvoiceModal({ isOpen, onClose, onCreate }) {
     if (!isOpen) return null;
 
     const [customerData, setCustomerData] = useState({
@@ -19,7 +19,9 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
         contact: '',
         tin: '',
         date: new Date().toISOString().split('T')[0],
-        salesPerson: ''
+        salesPerson: '',
+        cashier: '',
+        paymentMethod: 'CASH'
     });
 
     const [items, setItems] = useState([
@@ -78,9 +80,9 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
         if (!customerData.invoiceNumber.trim()) newErrors.invoiceNumber = 'Invoice number is required';
         if (!customerData.name.trim()) newErrors.name = 'Customer name is required';
         if (!customerData.address.trim()) newErrors.address = 'Shipping address is required';
-        if (!customerData.contact.trim()) newErrors.contact = 'Contact number is required';
         if (!customerData.date) newErrors.date = 'Invoice date is required';
         if (!customerData.salesPerson.trim()) newErrors.salesPerson = 'Sales person is required';
+        if (!customerData.cashier.trim()) newErrors.cashier = 'Cashier name is required';
         
         const validItems = items.filter(item => item.code !== 'SELECT' && item.qty > 0);
         if (validItems.length === 0) {
@@ -94,8 +96,46 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
     const handleCreateInvoice = (e) => {
         e.preventDefault();
         if (validateForm()) {
-            console.log('Invoice Created:', { customerData, items });
-            onClose();
+            const amountNum = calculateTotal();
+            const formattedAmount = `PHP ${amountNum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            
+            // Format date correctly (e.g., '17 Jan 2028')
+            const dateObj = new Date(customerData.date);
+            const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
+            
+            let dueDateStr = dateStr;
+            if (customerData.paymentMethod === 'INSTALLMENT') {
+                const dueDateObj = new Date(dateObj);
+                dueDateObj.setDate(dueDateObj.getDate() + 30);
+                dueDateStr = dueDateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
+            }
+
+            const newInvoice = {
+                id: Date.now(),
+                date: dateStr,
+                invoiceNumber: customerData.invoiceNumber,
+                orderNumber: 'N/A',
+                customerName: customerData.name,
+                salesPerson: customerData.salesPerson,
+                cashier: customerData.cashier,
+                status: customerData.paymentMethod,
+                dueDate: dueDateStr,
+                amount: formattedAmount,
+                balanceDue: formattedAmount,
+                items: items.filter(item => item.code !== 'SELECT' && item.qty > 0).map(item => ({
+                    code: item.code,
+                    description: item.description,
+                    cost: parseFloat(item.cost),
+                    qty: parseInt(item.qty)
+                }))
+            };
+            
+            if (onCreate) {
+                onCreate(newInvoice);
+            } else {
+                console.log('Invoice Created:', newInvoice);
+                onClose();
+            }
         }
     };
 
@@ -171,7 +211,7 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
                                     {errors.address && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.address}</p>}
                                 </div>
                                 <div>
-                                    <label className={labelClasses}>Contact Number</label>
+                                    <label className={labelClasses}>Contact Number <span className="text-gray-400 font-normal ml-1 normal-case">(optional)</span></label>
                                     <input 
                                         type="text" 
                                         className={`${inputClasses} ${errors.contact ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
@@ -189,7 +229,7 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
                                     {errors.contact && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.contact}</p>}
                                 </div>
                                 <div>
-                                    <label className={labelClasses}>TIN</label>
+                                    <label className={labelClasses}>TIN <span className="text-gray-400 font-normal ml-1 normal-case">(optional)</span></label>
                                     <input 
                                         type="text" 
                                         className={inputClasses} 
@@ -256,6 +296,33 @@ export default function CreateInvoiceModal({ isOpen, onClose }) {
                                         }}
                                     />
                                     {errors.salesPerson && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.salesPerson}</p>}
+                                </div>
+                                <div>
+                                    <label className={labelClasses}>Cashier</label>
+                                    <input 
+                                        type="text" 
+                                        className={`${inputClasses} ${errors.cashier ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        placeholder="e.g. MMPONCE" 
+                                        value={customerData.cashier}
+                                        onChange={(e) => {
+                                            setCustomerData({...customerData, cashier: e.target.value});
+                                            if (errors.cashier) {
+                                                const newErrors = {...errors};
+                                                delete newErrors.cashier;
+                                                setErrors(newErrors);
+                                            }
+                                        }}
+                                    />
+                                    {errors.cashier && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.cashier}</p>}
+                                </div>
+                                <div>
+                                    <label className={labelClasses}>Payment Method</label>
+                                    <input 
+                                        type="text"
+                                        className={`${inputClasses} bg-gray-100 cursor-not-allowed`}
+                                        value={customerData.paymentMethod}
+                                        readOnly
+                                    />
                                 </div>
                             </div>
                         </div>

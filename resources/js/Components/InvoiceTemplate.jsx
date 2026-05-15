@@ -60,8 +60,8 @@ export default function InvoiceTemplate({ invoice }) {
                     <div className="w-[20%] p-1 relative">
                         <div>PO:</div>
                         <div className="absolute bottom-1 left-1 text-[10px] text-gray-500 flex flex-col gap-0.5">
-                            <div>Cashier <span className="ml-2">: MMPONCE</span></div>
-                            <div>Sales Person <span className="ml-1">: LBSARINO</span></div>
+                            <div>Cashier <span className="ml-2">: {invoice.cashier || 'MMPONCE'}</span></div>
+                            <div>Sales Person <span className="ml-1">: {invoice.salesPerson || 'LBSARINO'}</span></div>
                         </div>
                     </div>
                 </div>
@@ -72,6 +72,7 @@ export default function InvoiceTemplate({ invoice }) {
                     </div>
                     <div className="flex-1 p-1">
                         <div>Terms:</div>
+                        <div className="text-gray-500 uppercase mt-1 px-4 font-bold">{invoice.status}</div>
                     </div>
                 </div>
             </div>
@@ -89,16 +90,29 @@ export default function InvoiceTemplate({ invoice }) {
 
                 {/* Table Body (Items) */}
                 <div className="flex-1">
-                    {/* Item 1 */}
-                    <div className="flex px-1 py-4 text-gray-500 uppercase font-medium tracking-wider">
-                        <div className="w-[20%] pl-2 text-black">MTP13ZP/A</div>
-                        <div className="flex-1 pr-4 text-black">
-                            <div>Product Item Description</div>
+                    {invoice.items && invoice.items.length > 0 ? (
+                        invoice.items.map((item, idx) => (
+                            <div key={idx} className="flex px-1 py-4 text-gray-500 uppercase font-medium tracking-wider">
+                                <div className="w-[20%] pl-2 text-black">{item.code}</div>
+                                <div className="flex-1 pr-4 text-black">
+                                    <div>{item.description}</div>
+                                </div>
+                                <div className="w-[15%] text-right pr-4 text-black font-normal">{item.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                <div className="w-[8%] text-center text-black">{item.qty}</div>
+                                <div className="w-[18%] text-right pr-6 text-black font-normal">{(item.cost * item.qty).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="flex px-1 py-4 text-gray-500 uppercase font-medium tracking-wider">
+                            <div className="w-[20%] pl-2 text-black">MTP13ZP/A</div>
+                            <div className="flex-1 pr-4 text-black">
+                                <div>Product Item Description</div>
+                            </div>
+                            <div className="w-[15%] text-right pr-4 text-black font-normal">{invoice.amount.replace('PHP ', '')}</div>
+                            <div className="w-[8%] text-center text-black">1</div>
+                            <div className="w-[18%] text-right pr-6 text-black font-normal">{invoice.amount.replace('PHP ', '')}</div>
                         </div>
-                        <div className="w-[15%] text-right pr-4 text-black font-normal">{invoice.amount.replace('PHP ', '')}</div>
-                        <div className="w-[8%] text-center text-black">1</div>
-                        <div className="w-[18%] text-right pr-6 text-black font-normal">{invoice.amount.replace('PHP ', '')}</div>
-                    </div>
+                    )}
                 </div>
             </div>
 

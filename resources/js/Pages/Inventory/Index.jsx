@@ -1,22 +1,31 @@
 import CreateProductModal from '@/Components/CreateProductModal';
 import SidebarLayout from '@/Layouts/SidebarLayout';
 import { Head } from '@inertiajs/react';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 export default function InventoryIndex() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const mockInventory = [
-        { id: 1, name: 'iPhone 15 Pro', code: 'IP15-PRO', onHand: 24, sold: 156, sales: 'PHP 11,074,440.00', category: 'Phones' },
-        { id: 2, name: 'MacBook Pro 14"', code: 'MBP-M3', onHand: 12, sold: 42, sales: 'PHP 4,199,580.00', category: 'Laptops' },
-        { id: 3, name: 'AirPods Pro 2', code: 'AIRPODS-P2', onHand: 45, sold: 289, sales: 'PHP 4,332,110.00', category: 'Accessories' },
-        { id: 4, name: 'iPad Air 5', code: 'IPAD-AIR5', onHand: 18, sold: 67, sales: 'PHP 2,411,330.00', category: 'Tablets' },
-        { id: 5, name: 'Apple Watch S9', code: 'WATCH-S9', onHand: 31, sold: 94, sales: 'PHP 2,349,060.00', category: 'Wearables' },
+    const [editingProduct, setEditingProduct] = useState(null);
+    const initialInventory = [
+        { id: 1, name: 'iPhone 15 Pro', code: 'IP15-PRO', onHand: 24, sold: 156, sales: 'PHP 11,074,440.00', category: 'Phones', reorderPoint: 10 },
+        { id: 2, name: 'MacBook Pro 14"', code: 'MBP-M3', onHand: 12, sold: 42, sales: 'PHP 4,199,580.00', category: 'Laptops', reorderPoint: 10 },
+        { id: 3, name: 'AirPods Pro 2', code: 'AIRPODS-P2', onHand: 45, sold: 289, sales: 'PHP 4,332,110.00', category: 'Accessories', reorderPoint: 10 },
+        { id: 4, name: 'iPad Air 5', code: 'IPAD-AIR5', onHand: 18, sold: 67, sales: 'PHP 2,411,330.00', category: 'Tablets', reorderPoint: 10 },
+        { id: 5, name: 'Apple Watch S9', code: 'WATCH-S9', onHand: 31, sold: 94, sales: 'PHP 2,349,060.00', category: 'Wearables', reorderPoint: 10 },
     ];
+
+    const [inventory, setInventory] = useState(initialInventory);
+
+    const handleDeleteProduct = (id) => {
+        if (confirm('Are you sure you want to delete this product?')) {
+            setInventory(prev => prev.filter(item => item.id !== id));
+        }
+    };
 
     const handleExport = () => {
         // Simple CSV generation
         const headers = ['Product', 'Code', 'Category', 'Sold', 'On-Hand', 'Total Sales'];
-        const rows = mockInventory.map(item => [
+        const rows = inventory.map(item => [
             item.name,
             item.code,
             item.category,
@@ -38,17 +47,27 @@ export default function InventoryIndex() {
         document.body.removeChild(link);
     };
 
-    const stats = [
-        { label: 'Total Sold', value: '648 Units', icon: (
-            <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-        )},
-        { label: 'On-Hand Stock', value: '130 Units', icon: (
-            <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-        )},
-        { label: 'Total Sales', value: 'PHP 24.3M', icon: (
-            <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3 1.343 3 3-1.343 3-3 3m0-14c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3m0 18v-2m0-14V5" /></svg>
-        )},
-    ];
+    const stats = useMemo(() => {
+        const totalSold = inventory.reduce((acc, item) => acc + (item.sold || 0), 0);
+        const totalOnHand = inventory.reduce((acc, item) => acc + (item.onHand || 0), 0);
+        const totalSales = inventory.reduce((acc, item) => {
+            const salesStr = item.sales || 'PHP 0.00';
+            const val = parseFloat(salesStr.replace(/[^0-9.]/g, '')) || 0;
+            return acc + val;
+        }, 0);
+
+        return [
+            { label: 'Total Sold', value: `${totalSold.toLocaleString()} Units`, icon: (
+                <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+            )},
+            { label: 'On-Hand Stock', value: `${totalOnHand.toLocaleString()} Units`, icon: (
+                <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+            )},
+            { label: 'Total Sales', value: `PHP ${(totalSales / 1000000).toFixed(1)}M`, icon: (
+                <span className="text-lg font-black text-amber-500 leading-none">₱</span>
+            )},
+        ];
+    }, [inventory]);
 
     return (
         <SidebarLayout>
@@ -102,10 +121,11 @@ export default function InventoryIndex() {
                                 <th className="px-6 py-3.5 text-[11px] font-bold uppercase tracking-widest text-gray-400">On-Hand</th>
                                 <th className="px-6 py-3.5 text-[11px] font-bold uppercase tracking-widest text-gray-400">Total Sales</th>
                                 <th className="px-6 py-3.5 text-[11px] font-bold uppercase tracking-widest text-gray-400">Status</th>
+                                <th className="px-6 py-3.5"></th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {mockInventory.map((item) => (
+                            {inventory.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer border-b border-gray-50 last:border-0">
                                     <td className="px-6 py-3.5">
                                         <div className="flex flex-col">
@@ -126,10 +146,35 @@ export default function InventoryIndex() {
                                     </td>
                                     <td className="px-6 py-3.5">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                            item.onHand < 15 ? 'bg-red-50 text-red-700' : item.onHand < 25 ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'
+                                            item.onHand <= (item.reorderPoint / 2) ? 'bg-red-50 text-red-700' : 
+                                            item.onHand <= item.reorderPoint ? 'bg-amber-50 text-amber-700' : 
+                                            'bg-emerald-50 text-emerald-700'
                                         }`}>
-                                            {item.onHand < 15 ? 'Critical' : item.onHand < 25 ? 'Low Stock' : 'In Stock'}
+                                            {item.onHand <= (item.reorderPoint / 2) ? 'Critical' : 
+                                             item.onHand <= item.reorderPoint ? 'Low Stock' : 
+                                             'In Stock'}
                                         </span>
+                                    </td>
+                                    <td className="px-6 py-3.5 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button 
+                                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors focus:outline-none"
+                                                onClick={() => {
+                                                    setEditingProduct(item);
+                                                    setIsModalOpen(true);
+                                                }}
+                                                title="Edit"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                            </button>
+                                            <button 
+                                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
+                                                onClick={() => handleDeleteProduct(item.id)}
+                                                title="Delete"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -140,7 +185,20 @@ export default function InventoryIndex() {
 
             <CreateProductModal 
                 isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setEditingProduct(null);
+                }}
+                productToEdit={editingProduct}
+                onCreate={(newProduct) => {
+                    setInventory(prev => [newProduct, ...prev]);
+                    setIsModalOpen(false);
+                }}
+                onUpdate={(updatedProduct) => {
+                    setInventory(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+                    setIsModalOpen(false);
+                    setEditingProduct(null);
+                }}
             />
         </SidebarLayout>
     );

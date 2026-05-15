@@ -10,7 +10,7 @@ export default function Dashboard() {
 
     const stats = [
         { label: 'Total Revenue', value: 'PHP 2.4M', growth: '+12.5%', link: 'reports.index', icon: (
-            <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+            <span className="text-lg font-black text-emerald-500 leading-none">₱</span>
         )},
         { label: 'Active Invoices', value: '1,284', growth: '+3.2%', link: 'invoices.index', icon: (
             <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -19,7 +19,7 @@ export default function Dashboard() {
             <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
         )},
         { label: 'Avg. Order Value', value: 'PHP 18.5k', growth: '+5.4%', link: 'reports.index', icon: (
-            <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3 1.343 3 3-1.343 3-3 3m0-14c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3m0 18v-2m0-14V5" /></svg>
+            <span className="text-lg font-black text-amber-500 leading-none">₱</span>
         )},
     ];
 

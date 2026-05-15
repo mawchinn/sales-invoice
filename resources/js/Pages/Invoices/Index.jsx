@@ -5,21 +5,28 @@ import SidebarLayout from '@/Layouts/SidebarLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import React, { useState, useMemo, useEffect } from 'react';
 
-const mockInvoices = [
-    { id: 1, date: '17 Jan 2028', invoiceNumber: '11784', orderNumber: 'PO-9921', customerName: 'MARCIN A. PASCUA', status: 'PAID', dueDate: '17 Jan 2028', amount: 'PHP 39,990.00', balanceDue: 'PHP 0.00' },
-    { id: 2, date: '17 Jan 2028', invoiceNumber: '11785', orderNumber: 'PO-9922', customerName: 'RICARDO PASCUAL', status: 'DRAFT', dueDate: '20 Jan 2028', amount: 'PHP 25,222.00', balanceDue: 'PHP 25,222.00' },
-    { id: 3, date: '16 Jan 2028', invoiceNumber: '11786', orderNumber: 'PO-9923', customerName: 'ELENA SANTOS', status: 'PARTIALLY PAID', dueDate: '16 Feb 2028', amount: 'PHP 120,500.00', balanceDue: 'PHP 60,000.00' },
-    { id: 4, date: '15 Jan 2028', invoiceNumber: '11787', orderNumber: 'PO-9924', customerName: 'RAFAEL MENDEZ', status: 'OPEN', dueDate: '15 Feb 2028', amount: 'PHP 88,426.00', balanceDue: 'PHP 88,426.00' },
-    { id: 5, date: '14 Jan 2028', invoiceNumber: '11788', orderNumber: 'PO-9925', customerName: 'SOPHIA CHUA', status: 'PARTIALLY PAID', dueDate: '14 Feb 2028', amount: 'PHP 176,105.00', balanceDue: 'PHP 76,105.00' },
-    { id: 6, date: '13 Jan 2028', invoiceNumber: '11789', orderNumber: 'PO-9926', customerName: 'GABRIEL REYES', status: 'DRAFT', dueDate: '13 Feb 2028', amount: 'PHP 218,729.00', balanceDue: 'PHP 218,729.00' },
-    { id: 7, date: '12 Jan 2028', invoiceNumber: '11790', orderNumber: 'PO-9927', customerName: 'MARIA LEONOR', status: 'PAID', dueDate: '12 Jan 2028', amount: 'PHP 319,174.00', balanceDue: 'PHP 0.00' },
-    { id: 8, date: '11 Jan 2028', invoiceNumber: '11791', orderNumber: 'PO-9928', customerName: 'ANTONIO LUNA', status: 'PENDING', dueDate: '11 Feb 2028', amount: 'PHP 423,895.00', balanceDue: 'PHP 423,895.00' },
-    { id: 9, date: '10 Jan 2028', invoiceNumber: '11792', orderNumber: 'PO-9929', customerName: 'ISABELLA GARCIA', status: 'OPEN', dueDate: '10 Feb 2028', amount: 'PHP 235,062.00', balanceDue: 'PHP 235,062.00' },
+const initialMockInvoices = [
+    { id: 1, date: '17 Jan 2028', invoiceNumber: '11784', orderNumber: 'PO-9921', customerName: 'MARCIN A. PASCUA', status: 'CASH', dueDate: '17 Jan 2028', amount: 'PHP 39,990.00', balanceDue: 'PHP 0.00', items: [{ code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 39990.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 2, date: '17 Jan 2028', invoiceNumber: '11785', orderNumber: 'PO-9922', customerName: 'RICARDO PASCUAL', status: 'CASH', dueDate: '20 Jan 2028', amount: 'PHP 25,222.00', balanceDue: 'PHP 25,222.00', items: [{ code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 25222.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 3, date: '16 Jan 2028', invoiceNumber: '11786', orderNumber: 'PO-9923', customerName: 'ELENA SANTOS', status: 'INSTALLMENT', dueDate: '16 Feb 2028', amount: 'PHP 120,500.00', balanceDue: 'PHP 60,000.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 120500.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 4, date: '15 Jan 2028', invoiceNumber: '11787', orderNumber: 'PO-9924', customerName: 'RAFAEL MENDEZ', status: 'CASH', dueDate: '15 Feb 2028', amount: 'PHP 88,426.00', balanceDue: 'PHP 88,426.00', items: [{ code: 'IPAD-AIR5', description: 'iPad Air (5th Generation) Wi-Fi 64GB Blue', cost: 44213.00, qty: 2 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 5, date: '14 Jan 2028', invoiceNumber: '11788', orderNumber: 'PO-9925', customerName: 'SOPHIA CHUA', status: 'INSTALLMENT', dueDate: '14 Feb 2028', amount: 'PHP 176,105.00', balanceDue: 'PHP 76,105.00', items: [{ code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 70990.00, qty: 2 }, { code: 'AIRPODS-P2', description: 'AirPods Pro (2nd Generation)', cost: 17062.50, qty: 2 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 6, date: '13 Jan 2028', invoiceNumber: '11789', orderNumber: 'PO-9926', customerName: 'GABRIEL REYES', status: 'INSTALLMENT', dueDate: '13 Feb 2028', amount: 'PHP 218,729.00', balanceDue: 'PHP 218,729.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00, qty: 2 }, { code: 'AIRPODS-P2', description: 'AirPods Pro (2nd Generation)', cost: 18749.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 7, date: '12 Jan 2028', invoiceNumber: '11790', orderNumber: 'PO-9927', customerName: 'MARIA LEONOR', status: 'CASH', dueDate: '12 Jan 2028', amount: 'PHP 319,174.00', balanceDue: 'PHP 0.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00, qty: 3 }, { code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 19204.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 8, date: '11 Jan 2028', invoiceNumber: '11791', orderNumber: 'PO-9928', customerName: 'ANTONIO LUNA', status: 'CASH', dueDate: '11 Feb 2028', amount: 'PHP 423,895.00', balanceDue: 'PHP 423,895.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00, qty: 4 }, { code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 23935.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
+    { id: 9, date: '10 Jan 2028', invoiceNumber: '11792', orderNumber: 'PO-9929', customerName: 'ISABELLA GARCIA', status: 'INSTALLMENT', dueDate: '10 Feb 2028', amount: 'PHP 235,062.00', balanceDue: 'PHP 235,062.00', items: [{ code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 99990.00, qty: 2 }, { code: 'IPAD-AIR5', description: 'iPad Air (5th Generation) Wi-Fi 64GB Blue', cost: 35082.00, qty: 1 }], cashier: 'MMPONCE', salesPerson: 'LBSARINO' },
 ];
 
 export default function InvoicesIndex() {
     const { url } = usePage();
     
+    const [invoices, setInvoices] = useState(initialMockInvoices);
+
+    const handleDeleteInvoice = (invoiceNumber) => {
+        if (confirm(`Are you sure you want to delete invoice #${invoiceNumber}?`)) {
+            setInvoices(prev => prev.filter(invoice => invoice.invoiceNumber !== invoiceNumber));
+        }
+    };
     const [selectedInvoice, setSelectedInvoice] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -31,7 +38,7 @@ export default function InvoicesIndex() {
         return params.get('search') || '';
     });
     
-    const [statusFilter, setStatusFilter] = useState('All Statuses');
+    const [statusFilter, setStatusFilter] = useState('CASH');
     const [currencyFilter, setCurrencyFilter] = useState('PHP');
     const [sortOrder, setSortOrder] = useState('Newest');
 
@@ -46,14 +53,14 @@ export default function InvoicesIndex() {
     }, [url]);
 
     const filteredInvoices = useMemo(() => {
-        return mockInvoices
+        return invoices
             .filter(invoice => {
                 const matchesSearch = 
                     invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     invoice.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     invoice.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
                 
-                const matchesStatus = statusFilter === 'All Statuses' || invoice.status === statusFilter;
+                const matchesStatus = statusFilter === 'All Methods' || invoice.status === statusFilter;
                 
                 // For currency, we just check if the amount string contains the currency code
                 const matchesCurrency = currencyFilter === 'All Currencies' || invoice.amount.includes(currencyFilter);
@@ -72,7 +79,7 @@ export default function InvoicesIndex() {
                 
                 return 0;
             });
-    }, [searchQuery, statusFilter, currencyFilter, sortOrder]);
+    }, [invoices, searchQuery, statusFilter, currencyFilter, sortOrder]);
 
     const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -80,7 +87,7 @@ export default function InvoicesIndex() {
 
     const handleRefresh = () => {
         setSearchQuery('');
-        setStatusFilter('All Statuses');
+        setStatusFilter('CASH');
         setCurrencyFilter('PHP');
         setSortOrder('Newest');
         setCurrentPage(1);
@@ -88,11 +95,8 @@ export default function InvoicesIndex() {
 
     const getStatusStyle = (status) => {
         switch(status) {
-            case 'PAID': return 'bg-emerald-50 text-emerald-600 border-emerald-200';
-            case 'DRAFT': return 'bg-gray-50 text-gray-500 border-gray-200 shadow-sm';
-            case 'PARTIALLY PAID': return 'bg-amber-50 text-amber-600 border-amber-200';
-            case 'OPEN': return 'bg-blue-50 text-blue-600 border-blue-200 shadow-sm';
-            case 'PENDING': return 'bg-indigo-50 text-indigo-500 border-indigo-200 border-dashed';
+            case 'CASH': return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+            case 'INSTALLMENT': return 'bg-amber-50 text-amber-600 border-amber-200';
             default: return 'bg-gray-50 text-gray-500 border-gray-200';
         }
     };
@@ -186,8 +190,8 @@ export default function InvoicesIndex() {
                                     <button className="flex items-center justify-between gap-2 px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors shadow-sm min-w-[140px]">
                                         <div className="flex items-center gap-2">
                                             <div className="flex">
-                                                <span className={`w-2.5 h-2.5 rounded-full ${statusFilter === 'All Statuses' ? 'bg-black' : 'bg-gray-300'} -mr-1 border border-white`}></span>
-                                                <span className={`w-2.5 h-2.5 rounded-full ${statusFilter !== 'All Statuses' ? 'bg-black' : 'bg-gray-300'} border border-white`}></span>
+                                                <span className={`w-2.5 h-2.5 rounded-full ${statusFilter === 'All Methods' ? 'bg-black' : 'bg-gray-300'} -mr-1 border border-white`}></span>
+                                                <span className={`w-2.5 h-2.5 rounded-full ${statusFilter !== 'All Methods' ? 'bg-black' : 'bg-gray-300'} border border-white`}></span>
                                             </div>
                                             {statusFilter}
                                         </div>
@@ -195,7 +199,7 @@ export default function InvoicesIndex() {
                                     </button>
                                 </Dropdown.Trigger>
                                 <Dropdown.Content align="left" width="48" contentClasses="py-2 bg-white shadow-xl border border-gray-100">
-                                    {['All Statuses', 'PAID', 'DRAFT', 'PARTIALLY PAID', 'OPEN', 'PENDING'].map((status) => (
+                                    {['All Methods', 'CASH', 'INSTALLMENT'].map((status) => (
                                         <button
                                             key={status}
                                             onClick={() => {
@@ -274,10 +278,8 @@ export default function InvoicesIndex() {
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Invoice #</th>
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Order</th>
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Customer</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Status</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Due Date</th>
+                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Payment Method</th>
                                     <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Amount</th>
-                                    <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest">Balance</th>
                                     <th className="px-4 py-4"></th>
                                 </tr>
                             </thead>
@@ -299,9 +301,7 @@ export default function InvoicesIndex() {
                                                 {invoice.status}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-4 font-medium text-gray-600 whitespace-nowrap">{invoice.dueDate}</td>
                                         <td className="px-4 py-4 font-bold text-gray-900 whitespace-nowrap">{invoice.amount}</td>
-                                        <td className="px-4 py-4 font-bold text-gray-900 whitespace-nowrap">{invoice.balanceDue}</td>
                                         <td className="px-4 py-5 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button 
@@ -313,7 +313,10 @@ export default function InvoicesIndex() {
                                                 </button>
                                                 <button 
                                                     className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
-                                                    onClick={(e) => e.stopPropagation()}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteInvoice(invoice.invoiceNumber);
+                                                    }}
                                                     title="Delete"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -429,7 +432,11 @@ export default function InvoicesIndex() {
             {/* Create Invoice Modal */}
             <CreateInvoiceModal 
                 isOpen={isCreateModalOpen} 
-                onClose={() => setIsCreateModalOpen(false)} 
+                onClose={() => setIsCreateModalOpen(false)}
+                onCreate={(newInvoice) => {
+                    setInvoices(prev => [newInvoice, ...prev]);
+                    setIsCreateModalOpen(false);
+                }}
             />
 
         </SidebarLayout>
