@@ -33,18 +33,28 @@ export default function InventoryIndex({ products: serverProducts = [] }) {
     const handleExport = () => {
         // Simple CSV generation
         const headers = ['Product', 'Code', 'Category', 'Sold', 'On-Hand', 'Unit Cost', 'Total Sales'];
-        const rows = inventory.map(item => [
-            item.description,
-            item.sku,
-            item.product_type || 'General',
-            item.sold || 0,
-            item.stock_quantity,
-            item.cost,
-            item.total_sales || 0
-        ]);
+        const rows = inventory.map(item => {
+            const row = [
+                item.description,
+                item.sku,
+                item.product_type || 'General',
+                item.sold || 0,
+                item.stock_quantity,
+                item.cost,
+                item.total_sales || 0
+            ];
+            
+            return row.map(val => {
+                let strVal = String(val === null || val === undefined ? '' : val);
+                if (strVal.includes(',') || strVal.includes('"') || strVal.includes('\n')) {
+                    return `"${strVal.replace(/"/g, '""')}"`;
+                }
+                return strVal;
+            });
+        });
         
         const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         

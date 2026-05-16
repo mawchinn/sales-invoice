@@ -32,7 +32,7 @@ class ReportController extends Controller
                 'id' => $product->id,
                 'col1' => $product->description, // Or product_name if it exists
                 'col2' => $product->sku,
-                'col3' => $product->stock_quantity,
+                'col3' => (string) $product->stock_quantity,
                 'col4' => (float) $product->cost,
                 'col5' => (float) ($product->stock_quantity * $product->cost),
             ];
@@ -71,8 +71,8 @@ class ReportController extends Controller
                 'headers' => ['Date', 'Invoice', 'Customer', 'Amount'],
                 'data' => $salesSummaryData,
             ],
-            'Inventory Valuation' => [
-                'headers' => ['Product Name', 'SKU', 'In Stock', 'Unit Cost', 'Total Value'],
+            'Inventory Evaluation' => [
+                'headers' => ['Product Name', 'SKU', 'On-Hand', 'Unit Cost', 'Total Value'],
                 'data' => $inventoryData,
             ],
 
