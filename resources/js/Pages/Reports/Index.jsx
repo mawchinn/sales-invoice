@@ -75,13 +75,32 @@ export default function ReportsIndex({ serverReportsData }) {
     );
 
     const handleExport = () => {
-        const headers = currentReport.headers;
+        const headers = currentReport.headers.map(h => {
+            if (h.includes(',') || h.includes('"') || h.includes('\n')) {
+                return `"${h.replace(/"/g, '""')}"`;
+            }
+            return h;
+        });
+
         const rows = filteredData.map(item => {
-            return currentReport.headers.map((_, idx) => item[`col${idx + 1}`]);
+            return currentReport.headers.map((_, idx) => {
+                let val = item[`col${idx + 1}`];
+                if (val === null || val === undefined) val = '';
+                val = String(val);
+                
+                // Force date strings to be interpreted as text in Excel to avoid ########
+                if (/^\d{4}-\d{2}-\d{2}$/.test(val) || /^\w+ \d{4}$/.test(val)) {
+                    val = `="${val}"`;
+                } else if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                    val = `"${val.replace(/"/g, '""')}"`;
+                }
+                return val;
+            });
         });
         
         const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        // Add BOM so Excel automatically reads as UTF-8
+        const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         
