@@ -1,98 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useForm } from '@inertiajs/react';
 
-const predefinedItems = [
-    { code: 'SELECT', description: 'Select a product...', cost: 0 },
-    { code: 'IP15-PRO', description: 'iPhone 15 Pro - 256GB Natural Titanium', cost: 70990.00 },
-    { code: 'MBP-M3', description: 'MacBook Pro 14" - M3 Chip 512GB Space Gray', cost: 104990.00 },
-    { code: 'AIRPODS-P2', description: 'AirPods Pro (2nd Generation) with MagSafe', cost: 14990.00 },
-    { code: 'IPAD-AIR5', description: 'iPad Air (5th Generation) Wi-Fi 64GB Blue', cost: 35990.00 },
-    { code: 'WATCH-S9', description: 'Apple Watch Series 9 GPS 41mm Midnight Aluminum', cost: 26490.00 },
-];
 
-export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate, invoice = null }) {
+export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate, invoice = null, products = [], nextInvoiceNumber, nextOrderNumber }) {
     if (!isOpen) return null;
 
     const isEdit = !!invoice;
 
-    const [customerData, setCustomerData] = useState(() => {
-        if (isEdit) {
-            // Try to parse the date string (e.g., "17 Jan 2028") to YYYY-MM-DD
-            let formattedDate = '';
-            try {
-                const dateObj = new Date(invoice.date);
-                if (!isNaN(dateObj.getTime())) {
-                    formattedDate = dateObj.toISOString().split('T')[0];
-                }
-            } catch (e) {
-                formattedDate = new Date().toISOString().split('T')[0];
-            }
-
-            return {
-                invoiceNumber: invoice.invoice_number,
-                name: invoice.customer_name,
-                address: invoice.address || '', 
-                contact: invoice.contact || '',
-                tin: invoice.tin || '',
-                date: formattedDate,
-                salesPerson: invoice.sales_person,
-                cashier: invoice.cashier,
-                paymentMethod: invoice.status || 'CASH'
-            };
-        }
-        return {
-            invoiceNumber: `PMC-2026-${Math.floor(Math.random() * 900) + 100}`,
-            name: '',
-            address: '',
-            contact: '',
-            tin: '',
-            date: new Date().toISOString().split('T')[0],
-            salesPerson: '',
-            cashier: '',
-            paymentMethod: 'CASH'
-        };
+    const { data, setData, post, patch, processing, errors, reset } = useForm({
+        invoice_number: invoice?.invoice_number || nextInvoiceNumber || '',
+        order_number: invoice?.order_number || nextOrderNumber || '',
+        customer_name: invoice?.customer_name || '',
+        address: invoice?.address || '',
+        contact: invoice?.contact || '',
+        tin: invoice?.tin || '',
+        date: invoice?.date || new Date().toISOString().split('T')[0],
+        due_date: invoice?.due_date || '',
+        sales_person: invoice?.sales_person || '',
+        cashier: invoice?.cashier || '',
+        status: invoice?.status || 'CASH',
+        amount: invoice?.amount || 0,
+        balance_due: invoice?.balance_due || 0,
+        items: invoice?.items?.map(item => ({
+            sku: item.sku,
+            description: item.description,
+            cost: item.cost,
+            qty: item.qty
+        })) || [{ sku: 'SELECT', description: '', cost: 0, qty: 1 }]
     });
-
-    const [items, setItems] = useState(() => {
-        if (isEdit && invoice.items) {
-            return invoice.items.map(item => ({
-                code: item.code,
-                description: item.description,
-                cost: item.cost,
-                qty: item.qty
-            }));
-        }
-        return [{ code: 'SELECT', description: '', cost: 0, qty: 1 }];
-    });
-
-    const [errors, setErrors] = useState({});
 
     const handleAddItem = () => {
-        setItems([...items, { code: 'SELECT', description: '', cost: 0, qty: 1 }]);
+        setData('items', [...data.items, { sku: 'SELECT', description: '', cost: 0, qty: 1 }]);
     };
 
     const handleRemoveItem = (index) => {
-        if (items.length > 1) {
-            setItems(items.filter((_, i) => i !== index));
+        if (data.items.length > 1) {
+            setData('items', data.items.filter((_, i) => i !== index));
         }
     };
 
     const handleUpdateItem = (index, field, value) => {
-        const newItems = [...items];
+        const newItems = [...data.items];
         
         if (field === 'qty') {
-            // Force quantity to be at least 1 and an integer
             const val = parseInt(value) || 0;
             newItems[index][field] = Math.max(0, val);
         } else if (field === 'cost') {
-            // Force cost to be at least 0
             const val = parseFloat(value) || 0;
             newItems[index][field] = Math.max(0, val);
         } else {
             newItems[index][field] = value;
         }
         
-        if (field === 'code') {
-            const selected = predefinedItems.find(i => i.code === value);
+        if (field === 'sku') {
+            const selected = products.find(p => p.sku === value);
             if (selected && value !== 'SELECT') {
                 newItems[index].description = selected.description;
                 newItems[index].cost = selected.cost;
@@ -102,91 +63,53 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
             }
         }
         
-        setItems(newItems);
-        // Clear item errors when updated
-        if (errors.items) {
-            const newErrors = { ...errors };
-            delete newErrors.items;
-            setErrors(newErrors);
-        }
-    };
-
-    const validateForm = () => {
-        const newErrors = {};
-        if (!customerData.invoiceNumber.trim()) newErrors.invoiceNumber = 'Invoice number is required';
-        if (!customerData.name.trim()) newErrors.name = 'Customer name is required';
-        if (!customerData.address.trim()) newErrors.address = 'Home address is required';
-        if (!customerData.date) newErrors.date = 'Invoice date is required';
-        if (!customerData.salesPerson.trim()) newErrors.salesPerson = 'Sales person is required';
-        if (!customerData.cashier.trim()) newErrors.cashier = 'Cashier name is required';
-        
-        const validItems = items.filter(item => item.code !== 'SELECT' && item.qty > 0);
-        if (validItems.length === 0) {
-            newErrors.items = 'At least one valid product is required';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            const amountNum = calculateTotal();
-            const formattedAmount = `PHP ${amountNum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            
-            // Format date correctly (e.g., '17 Jan 2028')
-            const dateObj = new Date(customerData.date);
-            const dateStr = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
-            
-            let dueDateStr = dateStr;
-            if (customerData.paymentMethod === 'INSTALLMENT') {
-                const dueDateObj = new Date(dateObj);
-                dueDateObj.setDate(dueDateObj.getDate() + 30);
-                dueDateStr = dueDateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' ');
-            }
-
-            const invoiceData = {
-                id: isEdit ? invoice.id : Date.now(),
-                date: dateStr,
-                invoiceNumber: customerData.invoiceNumber,
-                orderNumber: isEdit ? invoice.orderNumber : 'N/A',
-                customerName: customerData.name,
-                salesPerson: customerData.salesPerson,
-                cashier: customerData.cashier,
-                status: customerData.paymentMethod,
-                dueDate: dueDateStr,
-                amount: formattedAmount,
-                balanceDue: formattedAmount,
-                items: items.filter(item => item.code !== 'SELECT' && item.qty > 0).map(item => ({
-                    code: item.code,
-                    description: item.description,
-                    cost: parseFloat(item.cost),
-                    qty: parseInt(item.qty)
-                })),
-                // Preserve additional fields if editing
-                address: customerData.address,
-                contact: customerData.contact,
-                tin: customerData.tin
-            };
-            
-            if (isEdit && onUpdate) {
-                onUpdate(invoiceData);
-            } else if (!isEdit && onCreate) {
-                onCreate(invoiceData);
-            } else {
-                console.log('Invoice Saved:', invoiceData);
-                onClose();
-            }
-        }
+        setData('items', newItems);
     };
 
     const calculateTotal = () => {
-        return items.reduce((acc, item) => {
+        return data.items.reduce((acc, item) => {
             const cost = parseFloat(item.cost) || 0;
             const qty = parseFloat(item.qty) || 0;
             return acc + (cost * qty);
         }, 0);
+    };
+
+    // Update amount and due date when relevant fields change
+    useEffect(() => {
+        const total = calculateTotal();
+        let dueDateStr = data.date;
+        
+        if (data.status === 'INSTALLMENT' && data.date) {
+            const dateObj = new Date(data.date);
+            dateObj.setDate(dateObj.getDate() + 30);
+            dueDateStr = dateObj.toISOString().split('T')[0];
+        }
+
+        setData(prevData => ({
+            ...prevData,
+            amount: total,
+            balance_due: total,
+            due_date: dueDateStr
+        }));
+    }, [data.items, data.date, data.status]);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        const options = {
+            onSuccess: () => {
+                if (isEdit) onUpdate();
+                else onCreate();
+                onClose();
+                reset();
+            },
+        };
+
+        if (isEdit) {
+            patch(route('invoices.update', invoice.id), options);
+        } else {
+            post(route('invoices.store'), options);
+        }
     };
 
     const inputClasses = "w-full bg-gray-50 hover:bg-gray-100 border-none rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-black/5 focus:outline-none transition-all placeholder-gray-400 font-medium text-gray-900";
@@ -220,19 +143,12 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                                     <label className={labelClasses}>Customer Name</label>
                                     <input 
                                         type="text" 
-                                        className={`${inputClasses} ${errors.name ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        className={`${inputClasses} ${errors.customer_name ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
                                         placeholder="e.g. Marcin A. Pascua" 
-                                        value={customerData.name}
-                                        onChange={(e) => {
-                                            setCustomerData({...customerData, name: e.target.value});
-                                            if (errors.name) {
-                                                const newErrors = {...errors};
-                                                delete newErrors.name;
-                                                setErrors(newErrors);
-                                            }
-                                        }}
+                                        value={data.customer_name}
+                                        onChange={(e) => setData('customer_name', e.target.value)}
                                     />
-                                    {errors.name && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.name}</p>}
+                                    {errors.customer_name && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.customer_name}</p>}
                                 </div>
                                 <div>
                                     <label className={labelClasses}>Home Address</label>
@@ -240,15 +156,8 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                                         type="text" 
                                         className={`${inputClasses} ${errors.address ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
                                         placeholder="Enter address" 
-                                        value={customerData.address}
-                                        onChange={(e) => {
-                                            setCustomerData({...customerData, address: e.target.value});
-                                            if (errors.address) {
-                                                const newErrors = {...errors};
-                                                delete newErrors.address;
-                                                setErrors(newErrors);
-                                            }
-                                        }}
+                                        value={data.address}
+                                        onChange={(e) => setData('address', e.target.value)}
                                     />
                                     {errors.address && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.address}</p>}
                                 </div>
@@ -258,15 +167,8 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                                         type="text" 
                                         className={`${inputClasses} ${errors.contact ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
                                         placeholder="Enter contact details" 
-                                        value={customerData.contact}
-                                        onChange={(e) => {
-                                            setCustomerData({...customerData, contact: e.target.value});
-                                            if (errors.contact) {
-                                                const newErrors = {...errors};
-                                                delete newErrors.contact;
-                                                setErrors(newErrors);
-                                            }
-                                        }}
+                                        value={data.contact}
+                                        onChange={(e) => setData('contact', e.target.value)}
                                     />
                                     {errors.contact && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.contact}</p>}
                                 </div>
@@ -276,8 +178,8 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                                         type="text" 
                                         className={inputClasses} 
                                         placeholder="000-000-000-000" 
-                                        value={customerData.tin}
-                                        onChange={(e) => setCustomerData({...customerData, tin: e.target.value})}
+                                        value={data.tin}
+                                        onChange={(e) => setData('tin', e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -291,53 +193,43 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                                     <label className={labelClasses}>Invoice Number</label>
                                     <input 
                                         type="text" 
-                                        className={`${inputClasses} ${errors.invoiceNumber ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        className={`${inputClasses} ${errors.invoice_number ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
                                         placeholder="e.g. PMC-2026-001"
-                                        value={customerData.invoiceNumber}
-                                        onChange={(e) => {
-                                            setCustomerData({...customerData, invoiceNumber: e.target.value});
-                                            if (errors.invoiceNumber) {
-                                                const newErrors = {...errors};
-                                                delete newErrors.invoiceNumber;
-                                                setErrors(newErrors);
-                                            }
-                                        }}
+                                        value={data.invoice_number}
+                                        onChange={(e) => setData('invoice_number', e.target.value)}
                                     />
-                                    {errors.invoiceNumber && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.invoiceNumber}</p>}
+                                    {errors.invoice_number && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.invoice_number}</p>}
                                 </div>
                                 <div>
                                     <label className={labelClasses}>Invoice Date</label>
                                     <input 
                                         type="date" 
                                         className={`${inputClasses} ${errors.date ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
-                                        value={customerData.date}
-                                        onChange={(e) => {
-                                            setCustomerData({...customerData, date: e.target.value});
-                                            if (errors.date) {
-                                                const newErrors = {...errors};
-                                                delete newErrors.date;
-                                                setErrors(newErrors);
-                                            }
-                                        }}
+                                        value={data.date}
+                                        onChange={(e) => setData('date', e.target.value)}
                                     />
                                 </div>
                                 <div>
                                     <label className={labelClasses}>Sales Person</label>
                                     <input 
                                         type="text" 
-                                        className={`${inputClasses} ${errors.salesPerson ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        className={`${inputClasses} ${errors.sales_person ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
                                         placeholder="e.g. LBSARINO" 
-                                        value={customerData.salesPerson}
-                                        onChange={(e) => {
-                                            setCustomerData({...customerData, salesPerson: e.target.value});
-                                            if (errors.salesPerson) {
-                                                const newErrors = {...errors};
-                                                delete newErrors.salesPerson;
-                                                setErrors(newErrors);
-                                            }
-                                        }}
+                                        value={data.sales_person}
+                                        onChange={(e) => setData('sales_person', e.target.value)}
                                     />
-                                    {errors.salesPerson && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.salesPerson}</p>}
+                                    {errors.sales_person && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.sales_person}</p>}
+                                </div>
+                                <div>
+                                    <label className={labelClasses}>Order Number</label>
+                                    <input 
+                                        type="text" 
+                                        className={`${inputClasses} ${errors.order_number ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
+                                        placeholder="e.g. PO-1001" 
+                                        value={data.order_number}
+                                        onChange={(e) => setData('order_number', e.target.value)}
+                                    />
+                                    {errors.order_number && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.order_number}</p>}
                                 </div>
                                 <div>
                                     <label className={labelClasses}>Cashier</label>
@@ -345,15 +237,8 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                                         type="text" 
                                         className={`${inputClasses} ${errors.cashier ? 'ring-2 ring-red-500 bg-red-50' : ''}`} 
                                         placeholder="e.g. MMPONCE" 
-                                        value={customerData.cashier}
-                                        onChange={(e) => {
-                                            setCustomerData({...customerData, cashier: e.target.value});
-                                            if (errors.cashier) {
-                                                const newErrors = {...errors};
-                                                delete newErrors.cashier;
-                                                setErrors(newErrors);
-                                            }
-                                        }}
+                                        value={data.cashier}
+                                        onChange={(e) => setData('cashier', e.target.value)}
                                     />
                                     {errors.cashier && <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-widest">{errors.cashier}</p>}
                                 </div>
@@ -362,7 +247,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                                     <input 
                                         type="text"
                                         className={`${inputClasses} bg-gray-100 cursor-not-allowed`}
-                                        value={customerData.paymentMethod}
+                                        value={data.status}
                                         readOnly
                                     />
                                 </div>
@@ -382,18 +267,19 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                             </div>
                             
                             <div className="space-y-3">
-                                {items.map((item, index) => (
+                                 {data.items.map((item, index) => (
                                     <div key={index} className="flex items-start gap-3 group relative">
                                         <div className="grid grid-cols-12 gap-3 flex-1">
                                             <div className="col-span-5">
                                                 {index === 0 && <label className={labelClasses}>Product</label>}
                                                 <select 
-                                                    value={item.code} 
-                                                    onChange={(e) => handleUpdateItem(index, 'code', e.target.value)}
+                                                    value={item.sku} 
+                                                    onChange={(e) => handleUpdateItem(index, 'sku', e.target.value)}
                                                     className={`${inputClasses} appearance-none cursor-pointer`}
                                                 >
-                                                    {predefinedItems.map(p => (
-                                                        <option key={p.code} value={p.code}>{p.code === 'SELECT' ? 'Select Product' : p.code}</option>
+                                                    <option value="SELECT">Select Product</option>
+                                                    {products.map(p => (
+                                                        <option key={p.sku} value={p.sku}>{p.sku}</option>
                                                     ))}
                                                 </select>
                                             </div>
@@ -464,7 +350,11 @@ export default function CreateInvoiceModal({ isOpen, onClose, onCreate, onUpdate
                         >
                             Cancel
                         </button>
-                        <button onClick={handleSubmit} className="px-6 py-3 bg-black hover:bg-gray-900 text-white rounded-xl font-bold transition-all shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 text-sm">
+                        <button 
+                            onClick={handleSubmit} 
+                            disabled={processing}
+                            className="px-6 py-3 bg-black hover:bg-gray-900 text-white rounded-xl font-bold transition-all shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 text-sm disabled:opacity-50"
+                        >
                             {isEdit ? 'Update' : 'Create'} Invoice
                         </button>
                     </div>

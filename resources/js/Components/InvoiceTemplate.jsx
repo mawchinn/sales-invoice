@@ -95,24 +95,24 @@ export default function InvoiceTemplate({ invoice }) {
                     {invoice.items && invoice.items.length > 0 ? (
                         invoice.items.map((item, idx) => (
                             <div key={idx} className="flex px-1 py-4 text-gray-500 uppercase font-medium tracking-wider">
-                                <div className="w-[20%] pl-2 text-black">{item.code}</div>
+                                <div className="w-[20%] pl-2 text-black">{item.sku}</div>
                                 <div className="flex-1 pr-4 text-black">
                                     <div>{item.description}</div>
                                 </div>
-                                <div className="w-[15%] text-right pr-4 text-black font-normal">{item.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                <div className="w-[15%] text-right pr-4 text-black font-normal">{parseFloat(item.cost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                                 <div className="w-[8%] text-center text-black">{item.qty}</div>
-                                <div className="w-[18%] text-right pr-6 text-black font-normal">{(item.cost * item.qty).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                <div className="w-[18%] text-right pr-6 text-black font-normal">{(parseFloat(item.cost) * item.qty).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                             </div>
                         ))
                     ) : (
                         <div className="flex px-1 py-4 text-gray-500 uppercase font-medium tracking-wider">
-                            <div className="w-[20%] pl-2 text-black">MTP13ZP/A</div>
+                            <div className="w-[20%] pl-2 text-black">N/A</div>
                             <div className="flex-1 pr-4 text-black">
-                                <div>Product Item Description</div>
+                                <div>No items</div>
                             </div>
-                            <div className="w-[15%] text-right pr-4 text-black font-normal">{invoice.amount.replace('PHP ', '')}</div>
-                            <div className="w-[8%] text-center text-black">1</div>
-                            <div className="w-[18%] text-right pr-6 text-black font-normal">{invoice.amount.replace('PHP ', '')}</div>
+                            <div className="w-[15%] text-right pr-4 text-black font-normal">0.00</div>
+                            <div className="w-[8%] text-center text-black">0</div>
+                            <div className="w-[18%] text-right pr-6 text-black font-normal">0.00</div>
                         </div>
                     )}
                 </div>
@@ -166,7 +166,7 @@ export default function InvoiceTemplate({ invoice }) {
                 {/* Right Totals Section */}
                 <div className="w-[45%] flex flex-col text-[10px] pl-4">
                     {(() => {
-                        const totalAmount = parseFloat(invoice.amount.replace(/[^0-9.]/g, '')) || 0;
+                        const totalAmount = parseFloat(invoice.amount) || 0;
                         const vatableSales = totalAmount / 1.12;
                         const vatAmount = totalAmount - vatableSales;
                         const format = (val) => val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -220,7 +220,7 @@ export default function InvoiceTemplate({ invoice }) {
                     <div className="mt-6 flex flex-col items-end gap-6">
                         <div className="flex items-baseline gap-4">
                             <span className="font-bold text-[13px]">TOTAL AMOUNT DUE:</span>
-                            <span className="font-black text-[15px]">{parseFloat(invoice.amount.replace(/[^0-9.]/g, '')).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            <span className="font-black text-[15px]">{parseFloat(invoice.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
 
                         <div className="w-full max-w-[200px] flex flex-col gap-4">

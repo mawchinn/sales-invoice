@@ -2,10 +2,10 @@ import CreateInvoiceModal from '@/Components/CreateInvoiceModal';
 import Dropdown from '@/Components/Dropdown';
 import InvoiceTemplate from '@/Components/InvoiceTemplate';
 import SidebarLayout from '@/Layouts/SidebarLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import React, { useState, useMemo, useEffect } from 'react';
 
-export default function InvoicesIndex({ invoices: serverInvoices = [] }) {
+export default function InvoicesIndex({ invoices: serverInvoices = [], products = [], nextInvoiceNumber, nextOrderNumber }) {
     const { url, props } = usePage();
     const { auth } = props;
     const user = auth?.user;
@@ -27,9 +27,9 @@ export default function InvoicesIndex({ invoices: serverInvoices = [] }) {
         setInvoices(serverInvoices);
     }, [serverInvoices]);
 
-    const handleDeleteInvoice = (invoiceNumber) => {
-        if (confirm(`Are you sure you want to delete invoice #${invoiceNumber}?`)) {
-            setInvoices(prev => prev.filter(invoice => invoice.invoice_number !== invoiceNumber));
+    const handleDeleteInvoice = (invoice) => {
+        if (confirm(`Are you sure you want to delete invoice #${invoice.invoice_number}?`)) {
+            router.delete(route('invoices.destroy', invoice.id));
         }
     };
     const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -74,8 +74,8 @@ export default function InvoicesIndex({ invoices: serverInvoices = [] }) {
                 return matchesSearch && matchesStatus && matchesCurrency;
             })
             .sort((a, b) => {
-                if (sortOrder === 'Newest') return new Date(b.date) - new Date(a.date);
-                if (sortOrder === 'Oldest') return new Date(a.date) - new Date(b.date);
+                if (sortOrder === 'Newest') return parseInt(b.invoice_number) - parseInt(a.invoice_number);
+                if (sortOrder === 'Oldest') return parseInt(a.invoice_number) - parseInt(b.invoice_number);
                 
                 const amountA = parseFloat(a.amount);
                 const amountB = parseFloat(b.amount);
@@ -258,7 +258,7 @@ export default function InvoicesIndex({ invoices: serverInvoices = [] }) {
                                         >
                                             <td className="px-4 py-4 font-medium text-gray-600 whitespace-nowrap">{formatDate(invoice.date)}</td>
                                             <td className="px-4 py-4 whitespace-nowrap">
-                                                <span className="font-bold text-gray-900 group-hover:text-black group-hover:underline decoration-2 underline-offset-4 transition-all">#{invoice.invoice_number}</span>
+                                                <span className="font-bold text-gray-900 group-hover:text-black group-hover:underline decoration-2 underline-offset-4 transition-all">{invoice.invoice_number}</span>
                                             </td>
                                             <td className="px-4 py-4 text-gray-400 whitespace-nowrap">{invoice.order_number}</td>
                                             <td className="px-4 py-4 font-semibold text-gray-800">{invoice.customer_name}</td>
@@ -291,7 +291,7 @@ export default function InvoicesIndex({ invoices: serverInvoices = [] }) {
                                                                 className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    handleDeleteInvoice(invoice.invoice_number);
+                                                                    handleDeleteInvoice(invoice);
                                                                 }}
                                                                 title="Delete"
                                                             >
@@ -408,12 +408,13 @@ export default function InvoicesIndex({ invoices: serverInvoices = [] }) {
                     setInvoiceToEdit(null);
                 }}
                 invoice={invoiceToEdit}
-                onCreate={(newInvoice) => {
-                    setInvoices(prev => [newInvoice, ...prev]);
+                products={products}
+                nextInvoiceNumber={nextInvoiceNumber}
+                nextOrderNumber={nextOrderNumber}
+                onCreate={() => {
                     setIsModalOpen(false);
                 }}
-                onUpdate={(updatedInvoice) => {
-                    setInvoices(prev => prev.map(inv => inv.id === updatedInvoice.id ? updatedInvoice : inv));
+                onUpdate={() => {
                     setIsModalOpen(false);
                     setInvoiceToEdit(null);
                 }}

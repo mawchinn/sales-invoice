@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import CreateInvoiceModal from '@/Components/CreateInvoiceModal';
 import CreateProductModal from '@/Components/CreateProductModal';
 
-export default function Dashboard({ stats: serverStats, salesData, recentInvoices, topProducts }) {
+export default function Dashboard({ stats: serverStats, salesData, recentInvoices, topProducts, products = [], nextInvoiceNumber, nextOrderNumber }) {
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
@@ -107,7 +107,7 @@ export default function Dashboard({ stats: serverStats, salesData, recentInvoice
                                             <div className="w-2 h-2 rounded-full bg-blue-500 group-hover:bg-black transition-colors"></div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-700">
-                                                    <span className="font-bold text-black">New Invoice</span> #{inv.invoice_number} created for {inv.customer_name}
+                                                    <span className="font-bold text-black">New Invoice</span> {inv.invoice_number} created for {inv.customer_name}
                                                 </p>
                                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{formatDate(inv.date)} • {formatCurrency(inv.amount)}</p>
                                             </div>
@@ -152,6 +152,9 @@ export default function Dashboard({ stats: serverStats, salesData, recentInvoice
             <CreateInvoiceModal 
                 isOpen={isInvoiceModalOpen} 
                 onClose={() => setIsInvoiceModalOpen(false)} 
+                products={products}
+                nextInvoiceNumber={nextInvoiceNumber}
+                nextOrderNumber={nextOrderNumber}
             />
 
             <CreateProductModal 

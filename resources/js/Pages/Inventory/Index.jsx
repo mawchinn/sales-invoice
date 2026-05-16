@@ -37,10 +37,10 @@ export default function InventoryIndex({ products: serverProducts = [] }) {
             item.description,
             item.sku,
             item.product_type || 'General',
-            0, // Sold
+            item.sold || 0,
             item.stock_quantity,
             item.cost,
-            item.cost * item.stock_quantity // Total Value
+            item.total_sales || 0
         ]);
         
         const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
@@ -66,9 +66,9 @@ export default function InventoryIndex({ products: serverProducts = [] }) {
     }, [inventory, typeFilter, searchQuery]);
 
     const stats = useMemo(() => {
-        const totalSold = 0; // Needs items relationship
+        const totalSold = filteredInventory.reduce((acc, item) => acc + (item.sold || 0), 0);
         const totalOnHand = filteredInventory.reduce((acc, item) => acc + (item.stock_quantity || 0), 0);
-        const totalSales = 0; // Needs items relationship
+        const totalSales = filteredInventory.reduce((acc, item) => acc + (parseFloat(item.total_sales) || 0), 0);
 
         return [
             { label: 'Total Sold', value: `${totalSold.toLocaleString()} Units`, icon: (
@@ -77,7 +77,7 @@ export default function InventoryIndex({ products: serverProducts = [] }) {
             { label: 'On-Hand Stock', value: `${totalOnHand.toLocaleString()} Units`, icon: (
                 <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
             )},
-            { label: 'Inventory Value', value: formatCurrency(filteredInventory.reduce((acc, item) => acc + (item.cost * item.stock_quantity), 0)), icon: (
+            { label: 'Total Sales', value: formatCurrency(totalSales), icon: (
                 <span className="text-lg font-black text-amber-500 leading-none">₱</span>
             )},
         ];
@@ -200,7 +200,7 @@ export default function InventoryIndex({ products: serverProducts = [] }) {
                                             </span>
                                         </td>
                                         <td className="px-6 py-5 text-left">
-                                            <span className="font-bold text-gray-700">0</span>
+                                            <span className="font-bold text-gray-700">{item.sold || 0}</span>
                                         </td>
                                         <td className="px-6 py-5 text-left">
                                             <span className={`font-black ${item.stock_quantity < 10 ? 'text-red-600' : item.stock_quantity < 20 ? 'text-amber-600' : 'text-emerald-600'}`}>

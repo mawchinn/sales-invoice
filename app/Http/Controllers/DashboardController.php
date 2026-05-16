@@ -38,7 +38,7 @@ class DashboardController extends Controller
         ->get();
 
         // Recent Invoices
-        $recentInvoices = Invoice::latest()->take(5)->get();
+        $recentInvoices = Invoice::orderByRaw('CAST(invoice_number AS UNSIGNED) DESC')->take(5)->get();
 
         // Top Products (by quantity sold)
         $topProducts = InvoiceItem::select('description', DB::raw('SUM(qty) as total_sold'))
@@ -57,7 +57,24 @@ class DashboardController extends Controller
             ],
             'salesData' => $salesData,
             'recentInvoices' => $recentInvoices,
-            'topProducts' => $topProducts
+            'topProducts' => $topProducts,
+            'products' => Product::all(),
+            'nextInvoiceNumber' => (function() {
+                $latest = Invoice::whereRaw('invoice_number REGEXP "^[0-9]+$"')
+                    ->orderByRaw('CAST(invoice_number AS UNSIGNED) DESC')
+                    ->first();
+                return (string)($latest ? (int)$latest->invoice_number + 1 : 10001);
+            })(),
+            'nextOrderNumber' => (function() {
+                $latest = Invoice::where('order_number', 'LIKE', 'PO-%')
+                    ->orderByRaw('CAST(SUBSTRING(order_number, 4) AS UNSIGNED) DESC')
+                    ->first();
+                if ($latest) {
+                    $lastNum = (int)str_replace('PO-', '', $latest->order_number);
+                    return 'PO-' . str_pad($lastNum + 1, 4, '0', STR_PAD_LEFT);
+                }
+                return 'PO-0001';
+            })()
         ]);
     }
 }

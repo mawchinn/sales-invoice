@@ -25,6 +25,9 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['au
 use App\Http\Controllers\InvoiceController;
 
 Route::get('/invoices', [InvoiceController::class, 'index'])->middleware(['auth'])->name('invoices.index');
+Route::post('/invoices', [InvoiceController::class, 'store'])->middleware(['auth'])->name('invoices.store');
+Route::patch('/invoices/{invoice}', [InvoiceController::class, 'update'])->middleware(['auth'])->name('invoices.update');
+Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->middleware(['auth'])->name('invoices.destroy');
 use App\Http\Controllers\ProductController;
 
 Route::get('/inventory', [ProductController::class, 'index'])->middleware(['auth'])->name('inventory.index');

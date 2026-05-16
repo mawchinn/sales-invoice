@@ -3,11 +3,22 @@ import { Head } from '@inertiajs/react';
 import React, { useState, useMemo } from 'react';
 import Dropdown from '@/Components/Dropdown';
 
-export default function ReportsIndex() {
+export default function ReportsIndex({ serverReportsData }) {
     const [reportType, setReportType] = useState('Sales Summary');
     const [dateRange, setDateRange] = useState('Last 30 Days');
-    const [customFrom, setCustomFrom] = useState('2026-05-01');
-    const [customTo, setCustomTo] = useState('2026-05-15');
+    const [customFrom, setCustomFrom] = useState(() => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}-01`;
+    });
+    const [customTo, setCustomTo] = useState(() => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
@@ -16,54 +27,7 @@ export default function ReportsIndex() {
         setCurrentPage(1);
     }, [reportType, dateRange, customFrom, customTo]);
 
-    const reportsData = {
-        'Sales Summary': {
-            headers: ['Date', 'Invoice', 'Customer', 'Amount'],
-            data: [
-                { id: 1, col1: '2026-05-15', col2: '#11793', col3: 'MARIA LEONOR', col4: 12500.00 },
-                { id: 2, col1: '2026-05-14', col2: '#11792', col3: 'ANTONIO LUNA', col4: 235062.00 },
-                { id: 3, col1: '2026-05-10', col2: '#11791', col3: 'ISABELLA GARCIA', col4: 423895.00 },
-                { id: 4, col1: '2026-04-28', col2: '#11790', col3: 'GABRIEL REYES', col4: 319174.00 },
-                { id: 5, col1: '2026-04-15', col2: '#11789', col3: 'SOPHIA CHUA', col4: 218729.00 },
-                { id: 6, col1: '2026-03-22', col2: '#11788', col3: 'RICARDO PASCUAL', col4: 88500.00 },
-                { id: 7, col1: '2026-03-05', col2: '#11787', col3: 'ELENA SANTOS', col4: 156000.00 },
-                { id: 8, col1: '2026-02-18', col2: '#11786', col3: 'RAFAEL MENDEZ', col4: 45200.00 },
-                { id: 9, col1: '2026-02-10', col2: '#11785', col3: 'ANTONIO LUNA', col4: 92000.00 },
-                { id: 10, col1: '2026-01-25', col2: '#11784', col3: 'MARIA LEONOR', col4: 120500.00 },
-            ]
-        },
-        'Inventory Valuation': {
-            headers: ['Product Name', 'SKU', 'In Stock', 'Unit Cost', 'Total Value'],
-            data: [
-                { id: 1, col1: 'iPhone 15 Pro', col2: 'IP15-PRO-128', col3: 45, col4: 55000.00, col5: 2475000.00 },
-                { id: 2, col1: 'MacBook Pro 14"', col2: 'MBP-14-M3', col3: 12, col4: 98000.00, col5: 1176000.00 },
-                { id: 3, col1: 'AirPods Pro 2', col2: 'AP-PRO-2', col3: 88, col4: 12500.00, col5: 1100000.00 },
-                { id: 4, col1: 'iPad Air 5', col2: 'IPA-5-64', col3: 24, col4: 32000.00, col5: 768000.00 },
-                { id: 5, col1: 'Apple Watch S9', col2: 'AW-S9-41', col3: 31, col4: 22000.00, col5: 682000.00 },
-            ]
-        },
-        'Customer Aging': {
-            headers: ['Customer Name', '1-30 Days', '31-60 Days', '61-90 Days', '90+ Days'],
-            data: [
-                { id: 1, col1: 'RICARDO PASCUAL', col2: 12500.00, col3: 0.00, col4: 0.00, col5: 0.00 },
-                { id: 2, col1: 'ELENA SANTOS', col2: 45000.00, col3: 12000.00, col4: 0.00, col5: 0.00 },
-                { id: 3, col1: 'RAFAEL MENDEZ', col2: 0.00, col3: 8800.00, col4: 15600.00, col5: 0.00 },
-                { id: 4, col1: 'SOPHIA CHUA', col2: 75000.00, col3: 0.00, col4: 0.00, col5: 12000.00 },
-                { id: 5, col1: 'GABRIEL REYES', col2: 0.00, col3: 0.00, col4: 0.00, col5: 4500.00 },
-            ]
-        },
-        'Tax Summary': {
-            headers: ['Tax Period', 'Gross Sales', 'Taxable Amount', 'VAT (12%)', 'Net Amount'],
-            data: [
-                { id: 1, col1: '2026-05-31', col2: 1250400.00, col3: 1116428.57, col4: 133971.43, col5: 1116428.57 },
-                { id: 2, col1: '2026-04-30', col2: 980500.00, col3: 875446.43, col4: 105053.57, col5: 875446.43 },
-                { id: 3, col1: '2026-03-31', col2: 1450200.00, col3: 1294821.43, col4: 155378.57, col5: 1294821.43 },
-                { id: 4, col1: '2026-02-28', col2: 820100.00, col3: 732232.14, col4: 87867.86, col5: 732232.14 },
-                { id: 5, col1: '2026-01-31', col2: 1120600.00, col3: 1000535.71, col4: 120064.29, col5: 1000535.71 },
-                { id: 6, col1: '2025-12-31', col2: 1340000.00, col3: 1196428.57, col4: 143571.43, col5: 1196428.57 },
-            ]
-        }
-    };
+    const reportsData = serverReportsData || {};
 
     const currentReport = reportsData[reportType] || reportsData['Sales Summary'];
 
@@ -73,7 +37,7 @@ export default function ReportsIndex() {
         
         if (!hasDate) return currentReport.data;
         
-        const today = new Date('2026-05-15');
+        const today = new Date();
         today.setHours(0, 0, 0, 0);
         
         return currentReport.data.filter(item => {
@@ -136,9 +100,7 @@ export default function ReportsIndex() {
         { title: 'Inventory Valuation', description: 'Total value of current stock on hand', icon: (
             <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
         )},
-        { title: 'Customer Aging', description: 'Outstanding balances by customer', icon: (
-            <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        )},
+
         { title: 'Tax Summary', description: 'VAT and other tax liabilities', icon: (
             <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
         )},
